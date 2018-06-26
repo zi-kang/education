@@ -1,7 +1,7 @@
 <template>
     <div id="addCourseItemPage" class="pr common-page-style b-sizing" @click="globalClick">
-        <div v-for="item in alertComponentList">
-            <AlertComponent :className="item.className" :msg = "item.text"></AlertComponent>
+        <div  class="common-alert-block p-center">
+            <AlertComponent v-for="item in alertComponentList" :className="item.className" :msg = "item.text"></AlertComponent>
         </div>
         <Nav></Nav>
         <div class="education-class-page-top common-page-top b-sizing t-left pr">
@@ -45,7 +45,10 @@
                 <i class="dlb vtm icon-add"></i>
                 <span class="dlb vtm">选择AR内容</span>
             </div>
-            <span class="dlb common-confirm-create-btns t-center p-pointer" @click="createCourse">确认创建</span>
+            <a href="javascript: void (0)" class="dlb common-confirm-create-btns t-center p-pointer" @click="createCourse">确认创建</a>
+        </div>
+        <div id="commonTips" v-if="isTips" @click="hideTipe">
+            <div :is="tipComponent" ></div>
         </div>
     </div>
 </template>
@@ -56,6 +59,7 @@
     import Nav from '@/components/Nav.vue';
     import Editor from '@/components/Editor.vue';
     import AlertComponent from '@/components/AlertComponent.vue';
+    import Tip from '@/components/Tip.vue';
 
     export default {
         name: "AddCourse",
@@ -68,7 +72,9 @@
                 descInfoHtml: '',
                 selectedImageFile: '',
                 coverImage: '/static/image/empty_cover.jpg',
-                alertComponentList: []
+                alertComponentList: [],
+                isTips: false,
+                tipComponent: null
             }
         },
         beforeCreate: function () {
@@ -79,7 +85,8 @@
         components: {
             Nav,
             Editor,
-            AlertComponent
+            AlertComponent,
+            Tip
         },
         computed: {
             categories: function () {
@@ -120,22 +127,42 @@
                 }
             },
             createCourse() {
-                this.alertComponentActive('active', '测试')
+                this.alertComponentActive('common-success-alert', '创建成功')
             },
             alertComponentActive(className, text){
                 this.alertComponentList.push({className, text});
                 this.removeLastComponent();
+                this.isTips = true;
+                this.tipComponent = Tip;
             },
             removeLastComponent(){
                 setTimeout(()=>{
-                    this.alertComponentList.pop();
+                    this.alertComponentList.shift();
                 }, 3000);
+            },
+            hideTipe(){
+                alert('点到我了，3秒钟后消失');
+                setTimeout(()=>{
+                    this.isTips = false;
+                }, 3000)
+            },
+            tipsShow(ev){
+                this.$store.dispatch('clickStopPropagation', ev);
             }
         }
     }
 </script>
 
 <style scoped>
+    #commonTips{
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,.5);
+        z-index: 100;
+    }
     #addCourseItemPage .education-class-page-top .class-name {
         margin-right: 10px;
         font-size: 36px;

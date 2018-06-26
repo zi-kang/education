@@ -357,3 +357,13 @@ textarea::-webkit-input-placeholder, input::-webkit-input-placeholder {
 .common-confirm-create-btns:hover{
     background-color: #39C9B9;
 }
+
+.common-alert-block{
+    top: 60px;
+    z-index: 10000;
+}
+
+.common-success-alert{
+    background-color: #00a0e9;
+    color: #ffffff;
+}
