@@ -1,0 +1,84 @@
+.icon-add {
+    width: 20px;
+    height: 20px;
+    background: url('/static/image/icon/add.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-arcontent {
+    width: 30px;
+    height: 30px;
+    background: url('/static/image/icon/arcontent.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-back {
+    width: 40px;
+    height: 40px;
+    background: url('/static/image/icon/back.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-class {
+    width: 30px;
+    height: 30px;
+    background: url('/static/image/icon/class.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-close-tip {
+    width: 20px;
+    height: 20px;
+    background: url('/static/image/icon/close-tip.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-code {
+    width: 18px;
+    height: 18px;
+    background: url('/static/image/icon/code.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-create {
+    width: 40px;
+    height: 40px;
+    background: url('/static/image/icon/create.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-logo {
+    width: 27px;
+    height: 26px;
+    background: url('/static/image/icon/logo.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-manage-icon {
+    width: 30px;
+    height: 30px;
+    background: url('/static/image/icon/manage-icon.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-menu {
+    width: 30px;
+    height: 30px;
+    background: url('/static/image/icon/menu.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-refresh {
+    width: 24px;
+    height: 24px;
+    background: url('/static/image/icon/refresh.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-search {
+    width: 20px;
+    height: 20px;
+    background: url('/static/image/icon/search.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-search_delete {
+    width: 20px;
+    height: 20px;
+    background: url('/static/image/icon/search_delete.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-user-nav {
+    width: 30px;
+    height: 30px;
+    background: url('/static/image/icon/user-nav.png') 0 0 no-repeat;
+    background-size: cover;
+}
