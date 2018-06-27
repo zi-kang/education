@@ -9,6 +9,7 @@ const Config = (function () {
     Config.categories = Config.host + '/categories';
     Config.getClassList = Config.host + '/mycourses';
     Config.mypackagesCommon = Config.host + '/mypackages';
+    Config.changePwd = Config.host + '/passport/password';
     return Config;
 }());
 exports.Config = Config;

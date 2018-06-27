@@ -79,16 +79,6 @@
             }, error => {
                 console.log(error);
             });
-
-           /* http.Http.get(config.Config.categories, '', msg => {
-                self.categories = msg;
-                for (let i = 0, j = msg.length; i < j; i++) {
-                    self.staticImage[msg[i].id] = '//staticfile-cdn.sightp.com/edu/category/' + msg[i].id + '.png';
-                    self.colorImage[msg[i].id] = '//staticfile-cdn.sightp.com/edu/category/' + msg[i].id + '_a.png';
-                }
-            }, error => {
-                console.log(error);
-            });*/
         },
         components: {
             Nav

@@ -17,6 +17,7 @@ export default new Vuex.Store({
         userId: '',
         userName: '',
         userTel: '',
+        userLogo: '/static/image/default_user.png',
         userToken: '',
         hasRight: false,
         categories: [],
@@ -41,6 +42,9 @@ export default new Vuex.Store({
         },
         SET_TPL(state, mobile) {
             state.userTel = mobile
+        },
+        SET_LOGO(state, userLogo) {
+            state.userLogo = userLogo
         },
         SET_CATEGORIES(state, categories) {
             state.categories = categories;
@@ -68,6 +72,7 @@ export default new Vuex.Store({
                 success:function(msg){
                     that.dispatch('setName', msg.username);
                     context.commit('SET_USERID', msg.userId);
+                    context.commit('SET_LOGO',  'http://sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg');
                 },
                 error:function(){
                     alert("发生异常");

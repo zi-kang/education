@@ -82,3 +82,10 @@
     background: url('/static/image/icon/user-nav.png') 0 0 no-repeat;
     background-size: cover;
 }
+
+.icon-angel-up{
+    width: 16px;
+    height: 16px;
+    background: url('/static/image/icon/angel-up.png') 0 0 no-repeat;
+    background-size: cover;
+}

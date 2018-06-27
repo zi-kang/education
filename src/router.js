@@ -3,9 +3,8 @@ import Router from 'vue-router'
 import Index from './views/Index.vue'
 import Course from './views/Course.vue'
 import AddCourse from './views/AddCourse.vue'
-import Home from './views/Home.vue'
-import About from './views/About.vue'
-import Test from './views/Test.vue'
+import UserInfo from './views/UserInfo.vue'
+
 import NotFont from './views/NotFont.vue'
 
 Vue.use(Router)
@@ -38,28 +37,12 @@ export default new Router({
             }
         },
         {
-            path: '/home',
-            name: 'home',
-            component: Home
-        },
-        {
-            path: '/about',
-            name: 'about',
-            component: About,
-            children: [
-                {
-                    // 当 /user/:id/profile 匹配成功，
-                    // UserProfile 会被渲染在 User 的 <router-view> 中
-                    path: 'test',
-                    name: 'test',
-                    component: Test
-                },
-            ]
-        },
-        {
-            path: '/home/test',
-            name: 'test',
-            component: Test
+            path: '/userInfo',
+            name: 'userInfo',
+            component: UserInfo,
+            meta: {
+                title: 'AR教育-个人中心'
+            }
         },
         {
             path: '/*',

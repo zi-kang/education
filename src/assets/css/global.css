@@ -359,11 +359,24 @@ textarea::-webkit-input-placeholder, input::-webkit-input-placeholder {
 }
 
 .common-alert-block{
+    position: fixed;
     top: 60px;
     z-index: 10000;
 }
 
 .common-success-alert{
-    background-color: #00a0e9;
-    color: #ffffff;
+    background-color: #F6FCF4;
+    border: 1px solid #57C22D;
+}
+.common-alert-alert{
+    background-color: #FFFBF4;
+    border: 1px solid #F8AC30;
+}
+.common-note-alert{
+    background-color: #F4F9FF;
+    border: 1px solid #2593FC;
+}
+.common-error-alert{
+    background-color: #F4F9FF;
+    border: 1px solid #EB1700;
 }

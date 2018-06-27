@@ -46,7 +46,7 @@
                 success: function (msg) {
                     self.isLogin = true;
                     self.userName = msg.username;
-                    self.userImage = 'http://sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg';
+                    self.userImage = '//sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg';
                     localStorage.educationToken = msg.token;
                     self.$store.dispatch('getRight');
                 },
