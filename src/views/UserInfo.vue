@@ -28,6 +28,7 @@
     // 引入 axios
     import axios from 'axios'
     import config from '../config';
+    import http from '../http';
     import AlertComponent from '@/components/AlertComponent.vue';
     import Nav from '@/components/Nav.vue';
     export default {
@@ -81,23 +82,16 @@
                 }
             },
             changePwdRequest(){
-
-                axios({
-                    method: 'put',
-                    url: config.Config.changePwd,
-                    data: {
-                        oldPassword: this.oldPwd,
-                        newPassword: this.newPwd
-                    },
-                    headers: {
-                        'Authorization': localStorage['educationToken']
-                    }
-                }).then(res => {
-                    console.log(res)
-                }).catch( (err) => {
-                    this.alertComponentActive('common-error-alert', err.response.data.message);
+                http.Http.put('https://global.easyar.cn/user/update/password', {
+                    oldPassword: this.oldPwd,
+                    newPassword: this.newPwd,
+                    token: localStorage['educationToken']
+                }, msg => {
+                    console.log(msg);
+                    this.alertComponentActive('common-success-alert', msg.message);
+                }, err => {
+                    console.log(err);
                 })
-
             }
         }
     }
