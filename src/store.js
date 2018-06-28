@@ -59,25 +59,15 @@ export default new Vuex.Store({
     },
     actions: {
         getStatus(context) {
-            let that = this;
-            $.ajax({
-                url:"//passport.sightp.com/v4/token",
-                type:"get",
-                cache:false,
-                dataType:"jsonp",
-                jsonp:"callback", //这里定义了callback的参数名称，以便服务获取callback的函数名即getMessage
-                jsonpCallback:"getMessage", //这里定义了jsonp的回调函数
-                beforeSend: (xhr) => {
-                    xhr.setRequestHeader("Authorization", localStorage['educationToken']);
-                },
-                success:function(msg){
-                    that.dispatch('setName', msg.username);
-                    context.commit('SET_USERID', msg.userId);
-                    context.commit('SET_LOGO',  'http://sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg');
-                },
-                error:function(){
-                    // window.location.href = '/'
-                }
+            let that = this,
+                getUrl = '//passport.sightp.com/v4/token';
+            http.Http.getJSONP(getUrl, '', msg => {
+                localStorage.educationToken = msg.token;
+                that.dispatch('setName', msg.username);
+                context.commit('SET_USERID', msg.userId);
+                context.commit('SET_LOGO',  'http://sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg');
+            }, err => {
+                window.location.href = '/'
             });
         },
         increment (context) {

@@ -1,5 +1,5 @@
 <template>
-    <div id="coursePage">
+    <div id="coursePage" class="pr">
         <Nav></Nav>
         <div class="education-class-page-top common-page-top b-sizing t-left pr">
             <span class="dlb vtm class-name">课程</span>
@@ -127,151 +127,140 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="less">
+    #coursePage{
+        min-height: 740px;
+
+        .class-name {
+            margin-right: 10px;
+            font-size: 36px;
+            color: #494A4E;
+        }
+
+        .back-to-course {
+            margin-right: 10px;
+        }
+
+        .class-type-nav {
+            top: 141px;
+            bottom: 0;
+            width: 220px;
+            background-color: #fff;
+            z-index: 10;
+        }
+
+        .select-class-type-btn {
+            height: 30px;
+            margin-top: 25px;
+            line-height: 30px;
+            padding-left: 20px;
+            font-size: 14px;
+            color: #666666;
+            border-right: 5px solid #ffffff;
+
+            span {
+                max-width: 140px;
+                color: #666666;
+            }
+
+            img {
+                width: 30px;
+                height: 30px;
+                border: 0 none;
+                margin-right: 10px;
+            }
+
+            .img-static {
+                display: inline-block;
+            }
+
+            .img-active {
+                display: none;
+            }
+        }
+        .select-class-type-btn:hover,
+        .select-class-type-btn.active {
+            color: #34C2B0;
+            border-right: 5px solid #34C2B0;
+            span {
+                color: #34C2B0;
+            }
+            .img-static {
+                display: none;
+            }
+            .img-active {
+                display: inline-block;
+            }
+        }
 
 
-    .education-class-page-top {
+        .class-page-right{
+            width: 100%;
+            min-height: 600px;
+            padding-left: 220px;
+        }
+        .class-list-block{
+            width: 1380px;
+            height: 680px;
+            margin: 0 auto;
+            font-size: 0;
+        }
+        .course-list-item {
+            width: 210px;
+            height: 170px;
+            margin: 20px 0 0 20px;
+            padding: 10px;
+            font-size: 0;
+            h4 {
+                max-width: 150px;
+                margin-bottom: 5px;
+                line-height: 14px;
+                font-size: 14px;
+                color: #333333;
+            }
+            p {
+                height: 15px;
+            }
+            .icon-menu-style {
+                top: 21px;
+                left: 3px;
+                transform: scale(0.4, 0.4);
+                -ms-transform: scale(0.4, 0.4); /* IE 9 */
+                -moz-transform: scale(0.4, 0.4); /* Firefox */
+                -webkit-transform: scale(0.4, 0.4); /* Safari 和 Chrome */
+                -o-transform: scale(0.4, 0.4);
+            }
+        }
 
+
+
+        .course-type {
+            height: 12px;
+            margin-left: 20px;
+            line-height: 12px;
+            font-size: 12px;
+            color: #999999;
+        }
+
+        .code-common-code {
+            top: 10px;
+            right: 10px;
+        }
+
+        .pre-image {
+            width: 190px;
+            height: 110px;
+            margin: 10px auto 0;
+            background-color: #EEEEEE;
+            border-radius: 5px;
+            overflow: hidden;
+            img {
+                border: 0 none;
+                max-width: 190px;
+                max-height: 110px;
+            }
+        }
     }
 
-    .class-name {
-        margin-right: 10px;
-        font-size: 36px;
-        color: #494A4E;
-    }
-
-    .back-to-course {
-        margin-right: 10px;
-    }
-
-    .class-type-nav {
-        top: 141px;
-        bottom: 0;
-        width: 220px;
-        background-color: #fff;
-    }
-
-    .select-class-type-btn {
-        height: 30px;
-        margin-top: 25px;
-        line-height: 30px;
-        padding-left: 20px;
-        font-size: 14px;
-        color: #666666;
-        border-right: 5px solid #ffffff;
-    }
-
-    .select-class-type-btn span {
-        max-width: 140px;
-        color: #666666;
-    }
-
-    .select-class-type-btn img {
-        width: 30px;
-        height: 30px;
-        border: 0 none;
-        margin-right: 10px;
-    }
-
-    .select-class-type-btn .img-static {
-        display: inline-block;
-    }
-
-    .select-class-type-btn .img-active {
-        display: none;
-    }
-
-    .select-class-type-btn:hover,
-    .select-class-type-btn.active {
-        color: #34C2B0;
-        border-right: 5px solid #34C2B0;
-    }
-
-    .select-class-type-btn:hover span,
-    .select-class-type-btn.active span {
-        color: #34C2B0;
-    }
-
-    .select-class-type-btn:hover .img-static,
-    .select-class-type-btn.active .img-static {
-        display: none;
-    }
-
-    .select-class-type-btn:hover .img-active,
-    .select-class-type-btn.active .img-active {
-        display: inline-block;
-    }
-
-    .class-page-right{
-        width: 100%;
-        min-height: 600px;
-        padding-left: 220px;
-    }
-    .class-list-block{
-        width: 1380px;
-        height: 680px;
-        margin: 0 auto;
-        font-size: 0;
-    }
-
-
-
-    .course-list-item {
-        width: 210px;
-        height: 170px;
-        margin: 20px 0 0 20px;
-        padding: 10px;
-        font-size: 0;
-    }
-
-    .course-list-item h4 {
-        max-width: 150px;
-        margin-bottom: 5px;
-        line-height: 14px;
-        font-size: 14px;
-        color: #333333;
-    }
-
-    .course-list-item p {
-        height: 15px;
-    }
-
-    .course-list-item .icon-menu-style {
-        top: 21px;
-        left: 3px;
-        transform: scale(0.4, 0.4);
-        -ms-transform: scale(0.4, 0.4); /* IE 9 */
-        -moz-transform: scale(0.4, 0.4); /* Firefox */
-        -webkit-transform: scale(0.4, 0.4); /* Safari 和 Chrome */
-        -o-transform: scale(0.4, 0.4);
-    }
-
-    .course-type {
-        height: 12px;
-        margin-left: 20px;
-        line-height: 12px;
-        font-size: 12px;
-        color: #999999;
-    }
-
-    .code-common-code {
-        top: 10px;
-        right: 10px;
-    }
-
-    .pre-image {
-        width: 190px;
-        height: 110px;
-        margin: 10px auto 0;
-        background-color: #EEEEEE;
-        border-radius: 5px;
-        overflow: hidden;
-    }
-
-    .pre-image img {
-        border: 0 none;
-        max-width: 190px;
-        max-height: 110px;
-    }
 
 </style>

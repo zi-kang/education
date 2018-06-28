@@ -8,11 +8,12 @@
             <a href="//passport.sightp.com/v4/login.html" v-if="!isLogin" class="loginBtn" target="_blank">登录</a>
             <div class="user-block pr" v-else>
                 <div class="user-logo pr">
-                    <img :src="userImage" alt="logo-user" onerror="this.src='static/image/default_user.png'" id="userLogo" class="v-center">
+                    <img :src="userImage" alt="logo-user" onerror="this.src='static/image/default_user.png'"
+                         id="userLogo" class="v-center">
                 </div>
                 <div class="user-name ell">{{userName}}</div>
                 <div class="pa authority-error" v-if="!hasRight">该账户暂无权限，请联系视+开通</div>
-                <router-link to="/course"  v-if="hasRight">进入控制台</router-link>
+                <router-link to="/course" v-if="hasRight">进入控制台</router-link>
                 <a href="javascript: void(0)" class="dlb" v-else>进入控制台</a>
             </div>
         </div>
@@ -20,7 +21,8 @@
 </template>
 
 <script>
-    const $ = window.$;
+    import http from '../http';
+
     export default {
         name: "Index",
         data: function () {
@@ -34,17 +36,28 @@
         created: function () {
             document.title = 'AR教育-登录';
             let self = this;
-            console.log($)
-            $.ajax({
+
+            http.Http.getJSONP("//passport.sightp.com/v4/token", '', msg => {
+                self.isLogin = true;
+                self.userName = msg.username;
+                self.userImage = '//sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg';
+                localStorage.educationToken = msg.token;
+                self.$store.dispatch('getRight');
+            }, err => {
+                console.log(err);
+                localStorage.educationToken = '';
+            });
+            /* window.handleResponse = function (data) {
+                 console.log(data)
+             };
+             var script = document.createElement("script");
+             script.src = "//passport.sightp.com/v4/token?callback=handleResponse";
+             document.body.insertBefore(script, document.body.lastChild);*/
+            /*$.ajax({
                 url: "//passport.sightp.com/v4/token",
                 type: "get",
-                cache: false,
                 dataType: "jsonp",
                 jsonp: "callback", //这里定义了callback的参数名称，以便服务获取callback的函数名即getMessage
-                jsonpCallback: "getMessage", //这里定义了jsonp的回调函数
-                beforeSend: (xhr) => {
-                    xhr.setRequestHeader("Authorization", localStorage['educationToken']);
-                },
                 success: function (msg) {
                     self.isLogin = true;
                     self.userName = msg.username;
@@ -55,7 +68,7 @@
                 error: function () {
                     localStorage.educationToken = '';
                 }
-            });
+            });*/
         },
         computed: {
             hasRight: function () {

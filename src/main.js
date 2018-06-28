@@ -11,8 +11,11 @@ import  VueQuillEditor from 'vue-quill-editor'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
+import VueJsonp from 'vue-jsonp'
 
 Vue.use(VueQuillEditor)
+Vue.use(VueJsonp)
+
 
 Vue.config.productionTip = false
 import axios from 'axios'
