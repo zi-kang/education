@@ -51,7 +51,6 @@
                     self.$store.dispatch('getRight');
                 },
                 error: function () {
-                    alert("发生异常");
                     localStorage.educationToken = '';
                 }
             });

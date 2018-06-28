@@ -75,8 +75,7 @@ export default new Vuex.Store({
                     context.commit('SET_LOGO',  'http://sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg');
                 },
                 error:function(){
-                    alert("发生异常");
-                    window.location.href = '/'
+                    // window.location.href = '/'
                 }
             });
         },

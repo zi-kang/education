@@ -20,7 +20,7 @@
                 <span class="dlb ell vtm">{{item.name}}</span>
             </a>
         </div>
-        <div class="class-page-right b-sizing">
+        <div class="class-page-right b-sizing pr">
             <div class="course-empty v-center common-empty" v-if="searchActive && courseRows.length === 0">
                 <img src="../assets/image/course-empty.png" alt="" class="db empty-course-img">
                 <span class="db empty-text">没有找到相应课程</span>
@@ -204,6 +204,7 @@
 
     .class-page-right{
         width: 100%;
+        min-height: 600px;
         padding-left: 220px;
     }
     .class-list-block{

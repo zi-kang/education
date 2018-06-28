@@ -87,10 +87,9 @@
                     newPassword: this.newPwd,
                     token: localStorage['educationToken']
                 }, msg => {
-                    console.log(msg);
                     this.alertComponentActive('common-success-alert', msg.message);
                 }, err => {
-                    console.log(err);
+                    this.alertComponentActive('common-error-alert', err.responseJSON.message);
                 })
             }
         }

@@ -4,6 +4,8 @@ import Index from './views/Index.vue'
 import Course from './views/Course.vue'
 import AddCourse from './views/AddCourse.vue'
 import UserInfo from './views/UserInfo.vue'
+import Content from './views/Content.vue'
+import addContent from './views/addContent.vue'
 
 import NotFont from './views/NotFont.vue'
 
@@ -42,6 +44,22 @@ export default new Router({
             component: UserInfo,
             meta: {
                 title: 'AR教育-个人中心'
+            }
+        },
+        {
+            path: '/content',
+            name: 'content',
+            component: Content,
+            meta: {
+                title: 'AR教育-AR内容'
+            }
+        },
+        {
+            path: '/content/addContent',
+            name: 'addContent',
+            component: addContent,
+            meta: {
+                title: 'AR教育-添加AR内容'
             }
         },
         {
