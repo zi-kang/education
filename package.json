@@ -1,5 +1,5 @@
 {
-  "name": "hello-world",
+  "name": "project",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "qs": "^6.5.2",
     "vue": "^2.5.16",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.0.1",
@@ -19,27 +18,7 @@
     "@vue/cli-plugin-babel": "^3.0.0-beta.15",
     "@vue/cli-plugin-eslint": "^3.0.0-beta.15",
     "@vue/cli-service": "^3.0.0-beta.15",
-    "jsonp": "^0.2.1",
     "vue-template-compiler": "^2.5.16"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "rules": {},
-    "parserOptions": {
-      "parser": "babel-eslint"
-    }
-  },
-  "postcss": {
-    "plugins": {
-      "autoprefixer": {}
-    }
   },
   "browserslist": [
     "> 1%",

@@ -20,6 +20,7 @@
 </template>
 
 <script>
+    const $ = window.$;
     export default {
         name: "Index",
         data: function () {
@@ -33,6 +34,7 @@
         created: function () {
             document.title = 'AR教育-登录';
             let self = this;
+            console.log($)
             $.ajax({
                 url: "//passport.sightp.com/v4/token",
                 type: "get",

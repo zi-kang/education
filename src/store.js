@@ -4,9 +4,10 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 // 引入 axios
-import axios from 'axios'
 
-const $ = window.$
+const $ = window.$;
+
+import http from './http';
 
 import config from './config';
 
@@ -86,48 +87,31 @@ export default new Vuex.Store({
             context.commit('SET_NAME', username)
         },
         getRight(context) {
-            axios.get('//edu-portal-api.sightp.com/passport/user',
-                {
-                    headers: {
-                        'Authorization': localStorage['educationToken']
-                    }
-                }
-            )
-                .then(res => {
-                    context.commit('SET_RIGHT', true)
-                    context.commit('SET_TPL', res.data.mobile)
-                    context.commit('SET_NAME', res.data.username)
-                })
-                .catch(() => {
-                    // console.info(err)
-                })
+            http.Http.get('//edu-portal-api.sightp.com/passport/user', '', function(msg){
+                context.commit('SET_RIGHT', true);
+                context.commit('SET_TPL', msg.mobile);
+                context.commit('SET_NAME', msg.username);
+            },function (err) {
+                console.info(err)
+            });
         },
         setTitle(context, title) {
             context.commit('SET_TITLE', title)
         },
         getCategories(context) {
-            axios.get(config.Config.categories,
-                {
-                    headers: {
-                        'Authorization': localStorage['educationToken']
-                    }
+            http.Http.get(config.Config.categories, '', function(msg){
+                context.commit('SET_CATEGORIES', msg);
+                let staticImage = [],
+                    colorImage = [];
+                for (let i = 0, j = msg.length; i < j; i++) {
+                    staticImage[msg[i].id] = '//staticfile-cdn.sightp.com/edu/category/' + msg[i].id + '.png';
+                    colorImage[msg[i].id] = '//staticfile-cdn.sightp.com/edu/category/' + msg[i].id + '_a.png';
                 }
-            )
-                .then(res => {
-                    context.commit('SET_CATEGORIES', res.data);
-                    let msg = res.data;
-                    let staticImage = [],
-                        colorImage = [];
-                    for (let i = 0, j = msg.length; i < j; i++) {
-                        staticImage[msg[i].id] = '//staticfile-cdn.sightp.com/edu/category/' + msg[i].id + '.png';
-                        colorImage[msg[i].id] = '//staticfile-cdn.sightp.com/edu/category/' + msg[i].id + '_a.png';
-                    }
-                    context.commit('SET_STATICIMAGE', staticImage);
-                    context.commit('SET_COLORIMAGE', colorImage)
-                })
-                .catch(() => {
-                    // console.info(err)
-                })
+                context.commit('SET_STATICIMAGE', staticImage);
+                context.commit('SET_COLORIMAGE', colorImage)
+            },function (err) {
+                console.info(err)
+            });
         },
         clickStopPropagation(ev) {
             if (ev && ev.stopPropagation) {
