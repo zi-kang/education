@@ -10,6 +10,8 @@ const Config = (function () {
     Config.getClassList = Config.host + '/mycourses';
     Config.mypackagesCommon = Config.host + '/mypackages';
     Config.changePwd = Config.host + '/passport/password';
+    Config.getImageToken = Config.host + '/token/image/';
+    Config.getPackageToken = Config.host + '/token/package/';
     return Config;
 }());
 exports.Config = Config;

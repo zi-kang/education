@@ -12,32 +12,45 @@
         <div class="add-content-main b-sizing">
             <div class="add-content-top-common dlb vtm mr20">
                 <p class="add-content-title-common">AR内容名称</p>
-                <input type="text" placeholder="请输入AR内容名称" class="active-btns b-sizing content-name-input add-common-style">
+                <input type="text" v-model="contentName" placeholder="请输入AR内容名称" class="active-btns b-sizing content-name-input add-common-style">
             </div>
             <div class="add-content-top-common dlb vtm">
                 <p class="add-content-title-common">AR内容包</p>
-                <div class="add-common-style content-name-input active-btns pr t-left ell">
-                    <input type="file" class="pa add-common-style common-input-file p-pointer" style="left: 0;top: 0;z-index: 10;" title="请选择AR内容包" @change="fileChange">
+                <div class="add-common-style content-name-input b-sizing active-btns pr t-left ell">
+                    <input type="file" class="pa add-common-style common-input-file p-pointer" style="left: 0;top: 0;z-index: 10;" accept=".ezp" title="请选择AR内容包" @change="fileChange">
                     <i v-if="!selectedContentFile" class="dlb vtm icon-add"></i>
                     <div v-if="selectedContentFile" class="content-file-name ell dlb vtm">{{contentFileName}}</div>
                     <span class="dlb vtm add-text">选择文件</span>
                 </div>
             </div>
             <p class="add-content-title-common">预览图</p>
-            <div class="add-cover-main">
-                <div class="cover-image-pre dlb fl pr">
-                    <img :src="coverImage" alt="" class="db v-center">
+            <div class="pre-image-main clearfix">
+                <div v-for="item in selectedImageCoveList" class="add-cover-main fl b-sizing" v-bind:class="{errorItem:item.isError}">
+                    <div class="cover-image-pre dlb fl pr">
+                        <img :src="item.fileUrl" alt="" class="db v-center">
+                    </div>
+                    <div class="add-cover-btns active-btns fl b-sizing t-left pr">
+                        <i v-show="item.isCover" class="dlb vtm icon-yes"></i>
+                        <i class="dib pa icon-delete p-pointer" @click="deletCover(item.fileUrl)"></i>
+                        <span v-show="!item.isCover" class="dlb vtm add-text p-pointer" @click="changeCover(item.fileUrl)">设为封面</span>
+                        <span v-show="item.isCover" class="dlb vtm add-text-static">封面</span>
+                    </div>
                 </div>
-                <div class="add-cover-btns active-btns fl p-pointer b-sizing t-left pr">
-                    <i class="dlb vtm icon-add"></i>
-                    <span class="dlb vtm add-text">选择文件</span>
-                    <span class="add-text-desc db">.jpg或.png格式的图片， 建议分辨</span>
-                    <input type="file" class="common-input-file cover-image-input pa p-pointer" accept=".jpg, .png" @change="coverFileChange">
+                <div v-if="selectedImageCoveList.length != 6" class="add-cover-main fl">
+                    <div class="cover-image-pre dlb fl pr">
+                        <img :src="coverImage" alt="" class="db v-center">
+                    </div>
+                    <div class="add-cover-btns active-btns fl p-pointer b-sizing t-left pr">
+                        <i class="dlb vtm icon-add"></i>
+                        <span class="dlb vtm add-text">选择文件</span>
+                        <span class="add-text-desc db">.jpg或.png格式的图片， 建议分辨</span>
+                        <input type="file" class="common-input-file cover-image-input pa p-pointer" accept=".jpg, .png" @change="coverFileChange">
+                    </div>
                 </div>
             </div>
-            <img v-for="item in selectedImageCoveList" :src="item.fileUrl" alt="">
-            <h1>已选择图片文件个数为：{{selectCount}}</h1>
-
+            <p class="add-content-title-common">描述</p>
+            <textarea  v-model="descInfoText" class="db b-sizing eidtor-block active-btns" maxlength="500" placeholder="请输入内容描述" />
+            <a href="javascript: void (0)" class="dlb common-confirm-create-btns t-center p-pointer" @click="createContent">确认创建</a>
         </div>
     </div>
 </template>
@@ -52,11 +65,17 @@
         data(){
           return {
               addImageText: '选择文件',
+              contentName: '',
               selectedContentFile: '',
               selectedImageCoveList: [],
               alertComponentList: [],
               contentFileName: '',
-              coverImage: '/static/image/empty_cover.jpg'
+              coverImage: '/static/image/empty_cover.jpg',
+              descInfoText: '',
+              contentFileToken: {},
+              imageFileToken: [],
+              contentGetRight: true,
+              coverImageGetRight: true
           }
         },
         beforeCreate: function () {
@@ -79,115 +98,236 @@
                     this.alertComponentList.shift();
                 }, 3000);
             },
+            errorAlert(errMsg) {
+              this.alertComponentActive('common-error-alert', errMsg)
+            },
             fileChange: function (e) {
                 if($(e.target).val() === '') return;
-                this.selectedContentFile = e.target.files[0];
+                let selectedFile = e.target.files[0];
                 $(e.target).val('');
-                this.contentFileName = this.selectedContentFile.name;
+                if(selectedFile.name.split('.').pop() != 'ezp') {
+                    this.errorAlert('请选择ezp格式的文件');
+                } else if (Math.ceil(selectedFile.size) > 52428800) {
+                    this.errorAlert('文件大小不允许超过50m');
+                } else {
+                    this.selectedContentFile = selectedFile;
+                    this.contentFileName = selectedFile.name;
+                }
             },
             coverFileChange: function (e) {
                 if($(e.target).val() === '') return;
                 let selcedFile = e.target.files[0];
                 $(e.target).val('');
+                if(this.selectedImageCoveList.length === 6) {
+                    this.alertComponentActive('common-alert-alert', '最多上传6张预览图');
+                    return;
+                }
                 let fileType = selcedFile.type.split('/').pop(),
                     fileSize = Math.ceil(selcedFile.size);
                 let windowURL = window.URL || window.webkitURL;
                 if((fileType === 'jpeg' || fileType === 'png') && fileSize < 2097152) {
-                    selcedFile.fileUrl =  windowURL.createObjectURL(selcedFile);
-                    this.selectedImageCoveList.push(selcedFile)
+                    let midifyFileItem = {
+                        files: selcedFile,
+                        fileUrl: windowURL.createObjectURL(selcedFile),
+                        isCover: false,
+                        isError: true
+                    };
+                    if(this.selectedImageCoveList.length === 0) {
+                        midifyFileItem.isCover = true;
+                    }
+                    this.selectedImageCoveList.push(midifyFileItem)
                 } else if (fileType === 'jpeg' || fileType === 'png') {
                     this.alertComponentActive('common-error-alert', '请选择2M内的.jpg或者.png的图片文件')
                 } else {
                     this.alertComponentActive('common-error-alert', '请选择.jpg或者.png的图片文件')
                 }
+            },
+            changeCover: function(fileUrl) {
+                for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
+                    if(this.selectedImageCoveList[i].fileUrl === fileUrl) {
+                        this.selectedImageCoveList[i].isCover = true;
+                    } else {
+                        this.selectedImageCoveList[i].isCover = false;
+                    }
+                }
+            },
+            deletCover: function(fileUrl){
+                for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
+                    if(this.selectedImageCoveList[i].fileUrl === fileUrl) {
+                        let isCoverActive = this.selectedImageCoveList[i].isCover;
+                        this.selectedImageCoveList.splice(i,1);
+                        if(isCoverActive && this.selectedImageCoveList.length > 0) {
+                            this.selectedImageCoveList[0].isCover = true;
+                        }
+                        break;
+                    }
+                }
+            },
+            createContent: function () {
+                if(this.contentName.length === 0) {
+                    this.errorAlert( '请输入AR内容名称')
+                } else if(!this.selectedContentFile) {
+                    this.errorAlert( '请上传AR内容包')
+                } else if (this.selectedImageCoveList.length === 0){
+                    this.errorAlert( '请上传预览图')
+                } else if (!this.descInfoText) {
+                    this.errorAlert( '请输入课程描述')
+                } else if (this.descInfoText.length > 500) {
+                    this.errorAlert( '课程描述字数不能超过500')
+                } else {
+                    this.$store.dispatch('loading');
+                    this.getEzpUploadToken();
+                    this.getImageUploadToken();
+                }
+            },
+            getEzpUploadToken(){
+                http.Http.get(config.Config.getPackageToken + 'ezp', '', msg => {
+                    this.contentFileToken = msg;
+                    this.contentGetRight = true;
+                    this.uploadContentToQiNiu();
+                }, err => {
+                    this.uploadContentErr();
+                });
+            },
+            getImageUploadToken() {
+                return 111;
+            },
+            uploadContentToQiNiu(){
+                if(!this.coverImageGetRight) return;
+                let params = new FormData();
+                params.append('file', this.selectedContentFile);
+                params.append('key', this.contentFileToken.key);
+                params.append('token', this.contentFileToken.token);
+                http.Http.postFile('//up.qbox.me', params, (msg) => {
+                    console.log(msg)
+                }, (jqXHR) => {
+                    this.uploadContentErr();
+                })
+            },
+            uploadContentErr(){
+                if(!this.coverImageGetRight) return;
+                this.$store.dispatch('removeLoading');
+                this.errorAlert( '创建失败');
+                this.contentGetRight = false;
             }
+
         }
     }
 </script>
 
-<style scoped>
+<style scoped lang="less">
     #addContentPage{
         width: 100%;
         min-height: 800px;
-    }
-    .icon-back{
-        margin-right: 10px;
-    }
-    .mr20{
-        margin-right: 20px;
-    }
-    .add-content-main{
-        width: 780px;
-        min-height: 600px;
-        margin: 0 auto;
-        padding-top: 10px;
-    }
-    .add-content-top-common{
-        width: 380px;
-    }
-    .add-content-title-common{
-        height:14px;
-        margin: 20px 0 10px;
-        line-height:14px;
-        font-size:14px;
-        color:rgba(51,51,51,1);
-        text-align: left;
-    }
-    .add-common-style{
-        width:380px;
-        height:40px;
-    }
-    .content-name-input{
-        padding: 0 10px;
-        line-height: 40px;
-        font-size: 14px;
-        color: #333333;
-    }
-    .add-text{
-        margin-left: 10px;
-        color: #00A983;
-    }
-    .content-file-name{
-        width: 210px;
-        margin-right: 104px;
+        .icon-back{
+            margin-right: 10px;
+        }
+        .icon-delete{
+            top: 10px;
+            right: 10px;
+        }
+        .errorItem{
+            box-shadow:0 2px 10px 0 rgba(255,0,0,1);
+            /*border: 1px solid #f00;*/
+        }
+        .mr20{
+            margin-right: 20px;
+        }
+        .add-content-main{
+            width: 780px;
+            min-height: 600px;
+            margin: 0 auto;
+            padding-top: 10px;
+        }
+        .add-content-top-common{
+            width: 380px;
+        }
+        .add-content-title-common{
+            height:14px;
+            margin: 20px 0 10px;
+            line-height:14px;
+            font-size:14px;
+            color:rgba(51,51,51,1);
+            text-align: left;
+        }
+        .add-common-style{
+            width:380px;
+            height:40px;
+        }
+        .content-name-input{
+            padding: 0 10px;
+            line-height: 40px;
+            font-size: 14px;
+            color: #333333;
+        }
+        .add-text{
+            margin-left: 10px;
+            color: #00A983;
+        }
+        .add-text-static{
+            font-size: 14px;
+            color: #333333;
+            margin-left: 10px;
+        }
+        .content-file-name{
+            width: 210px;
+            margin-right: 84px;
+        }
+
+        .eidtor-block{
+            width: 780px;
+            height: 200px;
+            padding: 15px;
+            resize: none;
+
+        }
+
+        .add-cover-main{
+            width: 380px;
+            height: 124px;
+        }
+        .cover-image-pre {
+            width: 220px;
+            height: 124px;
+            background-color: #EEEEEE;
+            img {
+                max-width: 220px;
+                max-height: 124px;
+                border: 0 none;
+            }
+        }
+        .add-cover-btns {
+            width: 160px;
+            height: 124px;
+            padding: 29px 10px;
+        }
+
+        .add-text-desc {
+            margin-top: 10px;
+            line-height: 18px;
+            font-size: 12px;
+            color: #999999;
+        }
+
+        .cover-image-input {
+            width: 160px;
+            height: 124px;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .pre-image-main{
+            width: 100%;
+            .add-cover-main:nth-child(2n + 1){
+                margin-right: 20px;
+            }
+            .add-cover-main:nth-child(n + 3){
+                margin-top: 20px;
+            }
+        }
     }
 
-    .add-cover-main{
-        width: 380px;
-        height: 124px;
-    }
-    .cover-image-pre {
-        width: 220px;
-        height: 124px;
-        background-color: #EEEEEE;
-    }
-
-    .cover-image-pre img {
-        max-width: 220px;
-        max-height: 124px;
-        border: 0 none;
-    }
-
-    .add-cover-btns {
-        width: 160px;
-        height: 124px;
-        padding: 29px 10px;
-    }
-
-    .add-text-desc {
-        margin-top: 10px;
-        line-height: 18px;
-        font-size: 12px;
-        color: #999999;
-    }
-
-    .cover-image-input {
-        width: 160px;
-        height: 124px;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-    }
 
 </style>

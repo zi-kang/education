@@ -129,6 +129,7 @@
 
 <style scoped lang="less">
     #coursePage{
+        height: 100%;
         min-height: 740px;
 
         .class-name {

@@ -89,3 +89,30 @@
     background: url('/static/image/icon/angel-up.png') 0 0 no-repeat;
     background-size: cover;
 }
+
+.icon-delete{
+    width: 20px;
+    height: 20px;
+    background: url('/static/image/icon/delete.png') 0 0 no-repeat;
+    background-size: cover;
+}
+
+.icon-expand {
+    width: 30px;
+    height: 30px;
+    background: url('/static/image/icon/expand.png') 0 0 no-repeat;
+    background-size: cover;
+}
+.icon-collapse{
+    width: 30px;
+    height: 30px;
+    background: url('/static/image/icon/collapse.png') 0 0 no-repeat;
+    background-size: cover;
+}
+
+.icon-yes{
+    width: 40px;
+    height: 40px;
+    background: url('/static/image/icon/yes.png') 0 0 no-repeat;
+    background-size: cover;
+}

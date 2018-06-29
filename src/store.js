@@ -58,6 +58,17 @@ export default new Vuex.Store({
         }
     },
     actions: {
+        loading(context){
+            let imgEle = window.document.createElement('img');
+            imgEle.id = 'loadingImage';
+            imgEle.src = '/static/image/loading.gif';
+            document.body.appendChild(imgEle);
+        },
+        removeLoading(context){
+            let imgEle = window.document.getElementById('loadingImage');
+            document.body.removeChild(imgEle);
+
+        },
         getStatus(context) {
             let that = this,
                 getUrl = '//passport.sightp.com/v4/token';
@@ -65,7 +76,7 @@ export default new Vuex.Store({
                 localStorage.educationToken = msg.token;
                 that.dispatch('setName', msg.username);
                 context.commit('SET_USERID', msg.userId);
-                context.commit('SET_LOGO',  'http://sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg');
+                context.commit('SET_LOGO',  '//sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg');
             }, err => {
                 window.location.href = '/'
             });
