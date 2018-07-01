@@ -73,9 +73,13 @@
               coverImage: '/static/image/empty_cover.jpg',
               descInfoText: '',
               contentFileToken: {},
+              contentQiNiuInfo: {},
               imageFileToken: [],
+              imageCoverUUid: '',
               contentGetRight: true,
-              coverImageGetRight: true
+              shouldGetContent: true,
+              coverImageGetRight: true,
+              uploadRequestNum: 0
           }
         },
         beforeCreate: function () {
@@ -130,7 +134,12 @@
                         files: selcedFile,
                         fileUrl: windowURL.createObjectURL(selcedFile),
                         isCover: false,
-                        isError: true
+                        isError: true,
+                        fileType: fileType,
+                        uploadToken: '',
+                        uploadKey: '',
+                        assetUrl: '',
+                        uuid: ''
                     };
                     if(this.selectedImageCoveList.length === 0) {
                         midifyFileItem.isCover = true;
@@ -175,6 +184,15 @@
                 } else if (this.descInfoText.length > 500) {
                     this.errorAlert( '课程描述字数不能超过500')
                 } else {
+                    this.uploadRequestNum = 0;
+                    if(!this.shouldGetContent) {
+                        this.uploadRequestNum++;
+                    }
+                    for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
+                        if(!this.selectedImageCoveList[i].isError) {
+                            this.uploadRequestNum++;
+                        }
+                    }
                     this.$store.dispatch('loading');
                     this.getEzpUploadToken();
                     this.getImageUploadToken();
@@ -186,11 +204,27 @@
                     this.contentGetRight = true;
                     this.uploadContentToQiNiu();
                 }, err => {
-                    this.uploadContentErr();
+                    this.shouldGetContent = true;
+                    this.contentGetRight = false;
+                    this.afterRequestCommon();
                 });
             },
             getImageUploadToken() {
-                return 111;
+                for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
+                    if(this.selectedImageCoveList[i].isError) {
+                        let fileType = this.selectedImageCoveList[i].fileType === 'png' ? 'png' : 'jpg';
+                        http.Http.get(config.Config.getImageToken + fileType, '', msg => {
+                            this.selectedImageCoveList[i].uploadToken = msg.token;
+                            this.selectedImageCoveList[i].uploadKey = msg.key;
+                            this.selectedImageCoveList[i].isError = false;
+
+                            this.uploadCoverToQiNiu(this.selectedImageCoveList[i], i);
+                        }, err => {
+                            this.selectedImageCoveList[i].isError = true;
+                            this.afterRequestCommon();
+                        });
+                    }
+                }
             },
             uploadContentToQiNiu(){
                 if(!this.coverImageGetRight) return;
@@ -199,16 +233,81 @@
                 params.append('key', this.contentFileToken.key);
                 params.append('token', this.contentFileToken.token);
                 http.Http.postFile('//up.qbox.me', params, (msg) => {
-                    console.log(msg)
+                    this.shouldGetContent = false;
+                    this.contentGetRight = true;
+                    this.contentQiNiuInfo = msg;
+                    console.log(this.contentQiNiuInfo);
+                    this.afterRequestCommon();
                 }, (jqXHR) => {
-                    this.uploadContentErr();
+                    this.shouldGetContent = true;
+                    this.contentGetRight = false;
+                    this.afterRequestCommon();
                 })
             },
-            uploadContentErr(){
+            uploadCoverToQiNiu(coverInfo, i){
                 if(!this.coverImageGetRight) return;
+                let params = new FormData();
+                params.append('file', coverInfo.files);
+                params.append('key', coverInfo.uploadKey);
+                params.append('token', coverInfo.uploadToken);
+                http.Http.postFile('//up.qbox.me', params, (msg) => {
+                    this.selectedImageCoveList[i].isError = false;
+                    this.selectedImageCoveList[i].assetUrl = msg.assetUrl;
+                    this.selectedImageCoveList[i].uuid = msg.uuid;
+                    this.afterRequestCommon();
+                }, (jqXHR) => {
+                    this.selectedImageCoveList[i].isError = true;
+                    this.afterRequestCommon();
+                })
+            },
+            afterRequestCommon(){
+                this.uploadRequestNum++;
+                if (this.uploadRequestNum != this.selectedImageCoveList.length + 1) {
+                    return;
+                }
                 this.$store.dispatch('removeLoading');
-                this.errorAlert( '创建失败');
-                this.contentGetRight = false;
+                if(this.contentGetRight && this.isAllCoverRight()) {
+                    alert('可以向后端发起请求啦');
+                    this.creatContentRequert();
+                } else {
+                    alert('请求失败啦')
+                }
+
+            },
+            isAllCoverRight: function () {
+                let charge = true;
+                for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
+                    if(this.selectedImageCoveList[i].isError) {
+                        charge = false;
+                        break;
+                    }
+                }
+                return charge;
+            },
+            creatContentRequert(){
+                this.$store.dispatch('loading');
+                let params = {
+                    name: this.contentName,
+                    coverId: '',
+                    intro: this.descInfoText,
+                    WorkUuid: this.contentQiNiuInfo.uuid,
+                    photos: []
+                };
+                for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
+                    params.photos.push(this.selectedImageCoveList[i].uuid);
+                    if(this.selectedImageCoveList[i].isCover) {
+                        params.coverId =  this.selectedImageCoveList[i].uuid;
+                    }
+                }
+                http.Http.postToBody(config.Config.mypackagesCommon, JSON.stringify(params), msg => {
+                    this.$store.dispatch('removeLoading');
+                    this.alertComponentActive('common-success-alert', '保存成功');
+                    console.log(msg);
+                }, err => {
+                    this.$store.dispatch('removeLoading');
+                    this.errorAlert(err.responseJSON.message)
+                });
+
             }
 
         }
