@@ -11,14 +11,12 @@
         <div class="add-course-main clearfix">
             <div class="add-top-left fl t-left">
                 <p class="add-title-text-common">课程名称</p>
-                <input type="text" class="course-name-input active-btns b-sizing" maxlength="30" placeholder="请输入课程名称">
+                <input type="text" v-model="courseName" class="course-name-input active-btns b-sizing" maxlength="30" placeholder="请输入课程名称">
                 <p class="add-title-text-common">课程分类</p>
-                <div class="select-course-type active-btns pr" v-bind:class="{'o-dn': !clickShow}"
-                     @click="selectTypeClick">
+                <div class="select-course-type active-btns pr" v-bind:class="{'o-dn': !clickShow}" @click="selectTypeClick">
                     <span class="current-select active-btns p-pointer b-sizing">{{selectName}}</span>
                     <div class="categories-list pa">
-                        <span v-for="item in categories" class="select-type-item-btn active-btns p-pointer b-sizing"
-                              :data-id="item.id" @click="selectItem">{{item.name}}</span>
+                        <span v-for="item in categories" class="select-type-item-btn p-pointer b-sizing" :data-id="item.id" @click="selectItem">{{item.name}}</span>
                     </div>
                 </div>
             </div>
@@ -41,14 +39,34 @@
             <p class="add-title-text-common">课程描述</p>
             <Editor v-on:listenChangeEvent="changeEditor"></Editor>
             <p class="add-title-text-common">课程内容</p>
-            <div class="active-btns select-content-block t-center p-pointer">
+            <div class="select-content-show pr active-btns clearfix b-sizing" v-for="item in selectContentItem">
+                <i class="dlb pa icon-delete p-pointer" @click="deletContent"></i>
+                <div class="content-show-left fl">
+                    <div class="content-show-cover pr">
+                        <img :src="item.info.preview" alt="" class="v-center">
+                    </div>
+                    <span class="dlb t-left">{{item.info.name}}</span>
+                </div>
+                <div class="content-show-right fr">
+                    <p class="add-title-text-common right-title">标题</p>
+                    <input type="text" maxlength="30" class="b-sizing" v-model="courseTitle" placeholder="请输入标题">
+                    <p class="add-title-text-common">描述</p>
+                    <textarea  v-model="courseDesc" class="db b-sizing" maxlength="500" placeholder="请输入内容描述" />
+                </div>
+            </div>
+            <div class="active-btns select-content-block t-center p-pointer" @click="selectContent">
                 <i class="dlb vtm icon-add"></i>
                 <span class="dlb vtm">选择AR内容</span>
             </div>
             <a href="javascript: void (0)" class="dlb common-confirm-create-btns t-center p-pointer" @click="createCourse">确认创建</a>
         </div>
-        <div id="commonTips" v-if="isTips" @click="hideTipe">
-            <div :is="tipComponent" ></div>
+        <div id="commonTips" v-if="isTips">
+            <div :is="tipComponent"
+                 msg="是否删除该AR内容？"
+                 v-on:listenCancelDelete="confirmDelete"
+                 v-on:listenselectEvent="confirmselect"
+                 v-on:listenHideEvent="hideTipe">
+            </div>
         </div>
     </div>
 </template>
@@ -59,13 +77,14 @@
     import Nav from '@/components/Nav.vue';
     import Editor from '@/components/Editor.vue';
     import AlertComponent from '@/components/AlertComponent.vue';
-    import Tip from '@/components/Tip.vue';
-
+    import ContentList from '@/components/ContentList.vue';
+    import AlertTip from '@/components/AlertTip.vue';
     export default {
         name: "AddCourse",
         data() {
             return {
                 clickShow: false,
+                courseName: '',
                 selectTypeId: '',
                 selectName: '请选择课程分类',
                 descInfoText: '',
@@ -74,7 +93,11 @@
                 coverImage: '/static/image/empty_cover.jpg',
                 alertComponentList: [],
                 isTips: false,
-                tipComponent: null
+                tipComponent: null,
+                selectContentId: '',
+                selectContentItem: [],
+                courseTitle: '',
+                courseDesc: ''
             }
         },
         beforeCreate: function () {
@@ -86,7 +109,8 @@
             Nav,
             Editor,
             AlertComponent,
-            Tip
+            ContentList,
+            AlertTip
         },
         computed: {
             categories: function () {
@@ -106,171 +130,140 @@
                 this.clickShow = !this.clickShow;
             },
             selectItem(ev) {
-                this.selectName = $(ev.target).text()
-                this.selectTypeId = $(ev.target).attr('data-id')
+                this.selectName = ev.target.innerText;
+                this.selectTypeId = ev.target.getAttribute('data-id');
             },
             fileChange(e) {
-                if($(e.target).val() === '') return;
-                let fileUrl = $(e.target).val();
-                this.selectedImageFile = e.target.files[0];
-                console.log(this.selectedImageFile);
-                $(e.target).val('');
-                let fileType = this.selectedImageFile.name.split('.').pop(),
-                    fileSize = this.selectedImageFile.size;
+                console.log(e.target.value);
+                if(e.target.value === '') return;
+                let selectFile = e.target.files[0];
+                console.log(selectFile);
+                e.target.value = '';
                 let windowURL = window.URL || window.webkitURL;
-                if (this.selectedImageFile && this.selectedImageFile.type.split('/')[0] === 'image') {
-                    this.coverImage = windowURL.createObjectURL(this.selectedImageFile);
-                } else if (this.selectedImageFile.type.split('/')[0] === 'image'){
-                    this.coverImage = fileUrl;
+                let fileType = selectFile.type.split('/').pop();
+                if(fileType != 'png' && fileType != 'jpeg') {
+                    this.errorAlert('请选择图片文件')
+                } else if (this.selectedImageFile.size > 2097152 ){
+                    this.errorAlert('请选择2M内的图片文件')
                 } else {
-                    this.selectedImageFile = '';
+                    this.selectedImageFile = selectFile;
+                    this.coverImage = windowURL.createObjectURL(this.selectedImageFile);
                 }
             },
             createCourse() {
-                this.alertComponentActive('common-success-alert', '创建成功')
+                if(this.courseName.trim() === '') {
+                    this.errorAlert('请输入课程名称')
+                } else if (this.selectTypeId === '') {
+                    this.errorAlert('请选择课程分类')
+                } else if (this.selectedImageFile === '') {
+                    this.errorAlert('请选择封面')
+                } else if (this.descInfoText.length === 0) {
+                    this.errorAlert('请输入课程描述')
+                } else if (this.descInfoText.length > 500) {
+                    this.errorAlert('课程描述不能大于500个字符')
+                } else if (this.selectContentId === '') {
+                    this.errorAlert('请选择AR内容')
+                } else if (this.courseTitle === '') {
+                    this.errorAlert('请输入课程内容标题')
+                } else if (this.courseDesc === '') {
+                    this.errorAlert('请输入课程内容描述')
+                } else {
+                    this.uploadCoverToQiNiu();
+                }
+            },
+            errorAlert(text){
+                this.alertComponentActive('common-error-alert',text)
             },
             alertComponentActive(className, text){
                 this.alertComponentList.push({className, text});
-                this.removeLastComponent();
-                this.isTips = true;
-                this.tipComponent = Tip;
-            },
-            removeLastComponent(){
                 setTimeout(()=>{
                     this.alertComponentList.shift();
                 }, 3000);
             },
             hideTipe(){
-                alert('点到我了，3秒钟后消失');
-                setTimeout(()=>{
-                    this.isTips = false;
-                }, 3000)
+                this.isTips = false;
+                this.tipComponent = null;
             },
-            tipsShow(ev){
-                this.$store.dispatch('clickStopPropagation', ev);
+            selectContent(){
+                this.isTips = true;
+                this.tipComponent = ContentList;
+            },
+            confirmselect(uuid){
+                this.selectContentId = uuid;
+                this.hideTipe();
+                this.getContentInsoRequest();
+            },
+            getContentInsoRequest(){
+                this.$store.dispatch('loading');
+                http.Http.get(config.Config.mypackagesCommon + '/' + this.selectContentId, '', msg => {
+                    this.$store.dispatch('removeLoading');
+                    this.selectContentItem = [];
+                    this.courseTitle = msg.info.name;
+                    this.courseDesc = msg.info.intro;
+                    this.selectContentItem.push(msg);
+                }, err => {
+                    this.$store.dispatch('removeLoading');
+                    this.alertComponentActive('common-error-alert', err.responseJSON.message);
+                });
+            },
+            deletContent(){
+                this.isTips = true;
+                this.tipComponent = AlertTip;
+            },
+            confirmDelete(){
+                this.hideTipe();
+                this.selectContentItem = [];
+                this.selectContentId = '';
+                this.courseTitle = '';
+                this.courseDesc = '';
+            },
+            //预览图上传到七牛
+            uploadCoverToQiNiu(){
+                this.$store.dispatch('loading');
+                let fileType = this.selectedImageFile.type.split('/').pop() === 'png' ? 'png' : 'jpg';
+                http.Http.get(config.Config.getImageToken + fileType, '', msg => {
+                    let params = new FormData();
+                    params.append('file', this.selectedImageFile);
+                    params.append('key', msg.key);
+                    params.append('token', msg.token);
+                    http.Http.postFile('//up.qbox.me', params, (data) => {
+                        this.$store.dispatch('removeLoading');
+                        this.createCourseRequest(data);
+                    }, (err) => {
+                        this.$store.dispatch('removeLoading');
+                        this.errorAlert('网络错误，请重试')
+                    })
+                }, err => {
+                    this.$store.dispatch('removeLoading');
+                    this.errorAlert('网络错误，请重试')
+                });
+            },
+            createCourseRequest(data){
+                console.log(data);
+                this.$store.dispatch('loading');
+                let params = {
+                    name: this.courseName,
+                    categoryId: parseInt(this.selectTypeId),
+                    coverUuid: data.uuid,
+                    intro: this.descInfoHtml,
+                    packages: [{
+                        uuid: this.selectContentId,
+                        name: this.courseTitle,
+                        intro: this.courseDesc
+                    }]
+                }
+                http.Http.postToBody(config.Config.getClassList, params, msg => {
+                    this.$store.dispatch('removeLoading');
+                    this.alertComponentActive('common-success-alert', '保存成功');
+                    setTimeout(()=>{
+                        window.location.href = '/course'
+                    }, 100);
+                }, err => {
+                    this.$store.dispatch('removeLoading');
+                    this.errorAlert(err.responseJSON.message)
+                });
+
             }
         }
     }
 </script>
-
-<style scoped>
-    #commonTips{
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background-color: rgba(0,0,0,.5);
-        z-index: 100;
-    }
-    #addCourseItemPage .education-class-page-top .class-name {
-        margin-right: 10px;
-        font-size: 36px;
-        color: #494A4E;
-    }
-
-    #addCourseItemPage .education-class-page-top .back-to-course {
-        margin-right: 10px;
-    }
-
-    #addCourseItemPage .add-course-main {
-        width: 780px;
-        margin: 0 auto;
-    }
-
-    #addCourseItemPage .add-title-text-common {
-        margin: 20px 0 10px;
-        line-height: 14px;
-        font-size: 14px;
-        color: #333333;
-        text-align: left;
-    }
-
-    #addCourseItemPage .add-top-left,
-    #addCourseItemPage .add-top-right {
-        width: 380px;
-        font-size: 0;
-    }
-
-    #addCourseItemPage .course-name-input,
-    #addCourseItemPage .select-course-type span {
-        display: block;
-        width: 380px;
-        height: 40px;
-        padding: 0 10px;
-        line-height: 40px;
-        font-size: 14px;
-    }
-
-    #addCourseItemPage .select-course-type span {
-        color: #CCCCCC;
-    }
-
-    #addCourseItemPage .categories-list {
-        top: 40px;
-        right: -20px;
-        left: 0;
-        max-height: 200px;
-        overflow: auto;
-        z-index: 10008;
-    }
-
-    #addCourseItemPage .add-cover-main {
-        width: 100%;
-        height: 124px;
-    }
-
-    #addCourseItemPage .cover-image-pre {
-        width: 220px;
-        height: 124px;
-        background-color: #EEEEEE;
-    }
-
-    #addCourseItemPage .cover-image-pre img {
-        max-width: 220px;
-        max-height: 124px;
-        border: 0 none;
-    }
-
-    #addCourseItemPage .add-cover-btns {
-        width: 160px;
-        height: 124px;
-        padding: 29px 10px;
-    }
-
-    #addCourseItemPage .add-text {
-        margin-left: 10px;
-        font-size: 14px;
-        color: #00A983;
-    }
-
-    .add-text-desc {
-        margin-top: 10px;
-        line-height: 18px;
-        font-size: 12px;
-        color: #999999;
-    }
-
-    .cover-image-input {
-        width: 160px;
-        height: 124px;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        overflow: hidden;
-    }
-
-    #addCourseItemPage .select-content-block {
-        width: 780px;
-        height: 40px;
-        line-height: 40px;
-        font-size: 0;
-    }
-
-    #addCourseItemPage .select-content-block span {
-        margin-left: 10px;
-        font-size: 14px;
-        color: #00A983;
-    }
-</style>

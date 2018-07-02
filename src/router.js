@@ -48,7 +48,7 @@ export default new Router({
         },
         {
             path: '/content',
-            name: 'content',
+            name: 'Content',
             component: Content,
             meta: {
                 title: 'AR教育-AR内容'
