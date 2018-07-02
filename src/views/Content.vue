@@ -23,7 +23,14 @@
                     <span class="dlb vtm">添加AR内容</span>
                 </router-link>
             </div>
-
+            <div class="content-item-list-section clearfix">
+                <div v-for="item in contentList" class="content-item active-btns t-left fl b-sizing">
+                    <h4 class="ell">{{item.name}}</h4>
+                    <div class="item-cover-image pr">
+                        <img :src="item.preview" class="v-center db" alt="">
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -36,7 +43,7 @@
     import AlertComponent from '@/components/AlertComponent.vue';
 
     export default {
-        name: "content",
+        name: "Content",
         data(){
           return {
               searchName: '',
@@ -64,35 +71,76 @@
             }, err => {
                 self.alertComponentActive('common-error-alert', err.responseJSON.message);
             });
-
         },
         components: {
             Nav,
             AlertComponent
         },
         methods:{
-            getCourse: function () {
-
+            getContent: function (page) {
+                http.Http.get(config.Config.mypackagesCommon, {
+                    page: page,
+                    size: 20,
+                    name: self.searchName
+                }, msg => {
+                    this.contentCount = msg.count;
+                    this.currentPage = msg.page;
+                    this.totalPage = msg.pageCount;
+                    this.contentList = msg.rows;
+                }, err => {
+                    this.alertComponentActive('common-error-alert', err.responseJSON.message);
+                });
             },
             deleteSearchName: function () {
-
+                this.searchName = '';
             },
             alertComponentActive(className, text){
                 this.alertComponentList.push({className, text});
-                this.removeLastComponent();
-            },
-            removeLastComponent(){
                 setTimeout(()=>{
                     this.alertComponentList.shift();
                 }, 3000);
-            },
+            }
         }
     }
 </script>
 
-<style scoped>
+<style scoped lang="less">
     .content-main{
         width: 100%;
         min-height: 500px;
+    }
+    .content-item-list-section{
+        width: 1140px;
+        height: auto;
+        margin: 0 auto;
+        font-size: 0;
+        .content-item{
+            width: 212px;
+            height: 171px;
+            margin: 20px 20px 0 0;
+            padding: 10px;
+            font-size: 20px;
+            color: #a3a3a3;
+            h4{
+                height: 14px;
+                margin-bottom: 30px;
+                line-height: 14px;
+                font-size: 14px;
+                color: #333333;
+            }
+        }
+        .content-item:nth-child(5n + 5){
+            margin-right: 0;
+        }
+        .item-cover-image{
+            width: 192px;
+            height: 108px;
+            margin: 0 auto;
+            background-color: #F5F5F5;
+            img{
+                max-width: 192px;
+                max-height: 108px;
+            }
+        }
     }
 </style>

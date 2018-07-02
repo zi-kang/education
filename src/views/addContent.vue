@@ -12,7 +12,7 @@
         <div class="add-content-main b-sizing">
             <div class="add-content-top-common dlb vtm mr20">
                 <p class="add-content-title-common">AR内容名称</p>
-                <input type="text" v-model="contentName" placeholder="请输入AR内容名称" class="active-btns b-sizing content-name-input add-common-style">
+                <input type="text" v-model="contentName" maxlength="20" placeholder="请输入AR内容名称" class="active-btns b-sizing content-name-input add-common-style">
             </div>
             <div class="add-content-top-common dlb vtm">
                 <p class="add-content-title-common">AR内容包</p>
@@ -25,7 +25,7 @@
             </div>
             <p class="add-content-title-common">预览图</p>
             <div class="pre-image-main clearfix">
-                <div v-for="item in selectedImageCoveList" class="add-cover-main fl b-sizing" v-bind:class="{errorItem:item.isError}">
+                <div v-for="item in selectedImageCoveList" class="add-cover-main fl b-sizing">
                     <div class="cover-image-pre dlb fl pr">
                         <img :src="item.fileUrl" alt="" class="db v-center">
                     </div>
@@ -185,16 +185,18 @@
                     this.errorAlert( '课程描述字数不能超过500')
                 } else {
                     this.uploadRequestNum = 0;
-                    if(!this.shouldGetContent) {
-                        this.uploadRequestNum++;
-                    }
+
                     for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
                         if(!this.selectedImageCoveList[i].isError) {
                             this.uploadRequestNum++;
                         }
                     }
                     this.$store.dispatch('loading');
-                    this.getEzpUploadToken();
+                    if(!this.shouldGetContent) {
+                        this.uploadRequestNum++;
+                    } else {
+                        this.getEzpUploadToken();
+                    }
                     this.getImageUploadToken();
                 }
             },
@@ -238,14 +240,13 @@
                     this.contentQiNiuInfo = msg;
                     console.log(this.contentQiNiuInfo);
                     this.afterRequestCommon();
-                }, (jqXHR) => {
+                }, (err) => {
                     this.shouldGetContent = true;
                     this.contentGetRight = false;
                     this.afterRequestCommon();
                 })
             },
             uploadCoverToQiNiu(coverInfo, i){
-                if(!this.coverImageGetRight) return;
                 let params = new FormData();
                 params.append('file', coverInfo.files);
                 params.append('key', coverInfo.uploadKey);
@@ -255,7 +256,7 @@
                     this.selectedImageCoveList[i].assetUrl = msg.assetUrl;
                     this.selectedImageCoveList[i].uuid = msg.uuid;
                     this.afterRequestCommon();
-                }, (jqXHR) => {
+                }, (err) => {
                     this.selectedImageCoveList[i].isError = true;
                     this.afterRequestCommon();
                 })
@@ -267,10 +268,9 @@
                 }
                 this.$store.dispatch('removeLoading');
                 if(this.contentGetRight && this.isAllCoverRight()) {
-                    alert('可以向后端发起请求啦');
                     this.creatContentRequert();
                 } else {
-                    alert('请求失败啦')
+                    this.errorAlert('保存失败，请重试')
                 }
 
             },
@@ -288,21 +288,23 @@
                 this.$store.dispatch('loading');
                 let params = {
                     name: this.contentName,
-                    coverId: '',
+                    coverUuid: '',
                     intro: this.descInfoText,
-                    WorkUuid: this.contentQiNiuInfo.uuid,
+                    workUuid: this.contentQiNiuInfo.uuid,
                     photos: []
                 };
                 for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
                     params.photos.push(this.selectedImageCoveList[i].uuid);
                     if(this.selectedImageCoveList[i].isCover) {
-                        params.coverId =  this.selectedImageCoveList[i].uuid;
+                        params.coverUuid =  this.selectedImageCoveList[i].uuid;
                     }
                 }
-                http.Http.postToBody(config.Config.mypackagesCommon, JSON.stringify(params), msg => {
+                http.Http.postToBody(config.Config.mypackagesCommon, params, msg => {
                     this.$store.dispatch('removeLoading');
                     this.alertComponentActive('common-success-alert', '保存成功');
-                    console.log(msg);
+                    setTimeout(()=>{
+                        window.location.href = '/content'
+                    }, 100);
                 }, err => {
                     this.$store.dispatch('removeLoading');
                     this.errorAlert(err.responseJSON.message)
@@ -324,10 +326,6 @@
         .icon-delete{
             top: 10px;
             right: 10px;
-        }
-        .errorItem{
-            box-shadow:0 2px 10px 0 rgba(255,0,0,1);
-            /*border: 1px solid #f00;*/
         }
         .mr20{
             margin-right: 20px;

@@ -343,20 +343,35 @@ textarea::-webkit-input-placeholder, input::-webkit-input-placeholder {
     opacity: 0;
 }
 
-.common-confirm-create-btns{
-    width: 220px;
+
+.common-confirm-btn-style{
     height: 40px;
-    margin: 30px auto 0;
     line-height: 40px;
     font-size: 18px;
     color: #ffffff;
     background-color: #34C2B0;
     box-shadow:0 5px 10px 0 rgba(167,255,235,0.7);
     border-radius:20px;
+    &:hover{
+        background-color: #1DB09E;
+    }
 }
-.common-confirm-create-btns:hover{
-    background-color: #39C9B9;
+.common-cancel-btn-style{
+    height: 40px;
+    line-height: 40px;
+    font-size: 18px;
+    color: #999999;
+    border: 1px solid #999999;
+    border-radius:20px;
 }
+.common-confirm-create-btns{
+    .common-confirm-btn-style;
+    width: 220px;
+    margin: 30px auto 0;
+}
+
+
+
 
 .common-alert-block{
     position: fixed;
@@ -381,6 +396,16 @@ textarea::-webkit-input-placeholder, input::-webkit-input-placeholder {
     border: 1px solid #EB1700;
 }
 
+#commonTips{
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0,0,0,.5);
+    z-index: 100;
+}
+
 #loadingImage{
     position: fixed;
     left: 50%;
@@ -391,4 +416,55 @@ textarea::-webkit-input-placeholder, input::-webkit-input-placeholder {
     -webkit-transform: translate(-50%, -50%);
     -o-transform: translate(-50%, -50%);
     z-index: 1000;
+}
+
+#commonPageNation{
+    height: 30px;
+    line-height: 30px;
+    font-size: 12px;
+    li{
+        width: 30px;
+        height: 30px;
+        margin-left: 5px;
+        text-align: center;
+        font-size: 12px;
+        color: #999999;
+        border:1px solid rgba(238,238,238,1);
+        border-radius:5px;
+        vertical-align: middle;
+        cursor: pointer;
+    }
+    li:hover,
+    .active{
+        color: #34C2B0;
+        border:1px solid rgba(52,194,176,1);
+    }
+    .page-ell{
+        border: 0 none;
+        &:hover{
+            border: 0 none;
+        }
+    }
+}
+
+.common-cancel-tip-btn{
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    color: #666666;
+    border: 1px solid #DDCCdd;
+    border-radius:20px;
+}
+
+.common-delete-tip-btn{
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    color: #ffffff;
+    background-color: #FF8470;
+    box-shadow:0 5px 10px 0 rgba(255,170,151,0.7);
+    border-radius:20px;
+    &:hover{
+        background-color: #E56B4D;
+    }
 }
