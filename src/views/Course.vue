@@ -59,7 +59,7 @@
         </div>
         <div id="commonTips" v-if="isTips">
             <div :is="tipComponent"
-                 code="activeCode"
+                 :code="activeCode"
                  v-on:listenHideEvent="hideTipe">
             </div>
         </div>
