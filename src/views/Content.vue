@@ -10,7 +10,7 @@
             <router-link to="/content/addContent"><i class="dlb vtm icon-create p-pointer add-class-btn"></i></router-link>
             <div class="p-middle class-search-block page-search-common">
                 <i class="dlb vtm icon-search"></i>
-                <input type="text" class="vtm t-left" placeholder="搜索AR内容名称" v-model="searchName" maxlength="30" @keyup.13='getCourse'>
+                <input type="text" class="vtm t-left" placeholder="搜索AR内容名称" v-model="searchName" maxlength="30" @keyup.13='getContent(1)'>
                 <i v-if="searchName.length > 0" class="dlb vtm icon-search_delete p-pointer" @click="deleteSearchName"></i>
             </div>
         </div>
@@ -30,6 +30,15 @@
                         <img :src="item.preview" class="v-center db" alt="">
                     </div>
                 </div>
+                <ul v-show="totalPage > 1" id="commonPageNation" class="clearfix content-list-page fr">
+                    <li class="fl" @click="pageChange(currentPage - 1)"> < </li>
+                    <li class="fl" v-if="preEll" @click="pageChange(1)">1</li>
+                    <li class="fl page-ell" v-if="preEll" @click="pageChange(currentPage - 5)">...</li>
+                    <li class="fl" v-bind:class="{active: item === currentPage}" v-for="item in pageList" v-bind:key="item" @click="pageChange(item)">{{item}}</li>
+                    <li class="fl page-ell" v-if="lastEll" @click="pageChange(currentPage + 5)">...</li>
+                    <li class="fl" v-if="lastEll" @click="pageChange(totalPage)">{{totalPage}}</li>
+                    <li class="fl" @click="pageChange(currentPage + 1)"> ></li>
+                </ul>
             </div>
         </div>
 
@@ -41,7 +50,9 @@
     import http from '../http';
     import Nav from '@/components/Nav.vue';
     import AlertComponent from '@/components/AlertComponent.vue';
+    import pageNation from '../pageNation';
 
+    const pageSize = 2;
     export default {
         name: "Content",
         data(){
@@ -52,7 +63,10 @@
               currentPage: 1,
               totalPage: 1,
               contentCount: 0,
-              alertComponentList: []
+              alertComponentList: [],
+              pageList: [],
+              preEll: false,
+              lastEll: false
           }
         },
         beforeCreate: function () {
@@ -61,13 +75,14 @@
             let self = this;
             http.Http.get(config.Config.mypackagesCommon, {
                 page: 1,
-                size: 20,
+                size: pageSize,
                 name: self.searchName
             }, msg => {
                 self.contentCount = msg.count;
                 self.currentPage = msg.page;
                 self.totalPage = msg.pageCount;
                 self.contentList = msg.rows;
+                self.modifyPageList();
             }, err => {
                 self.alertComponentActive('common-error-alert', err.responseJSON.message);
             });
@@ -80,25 +95,40 @@
             getContent: function (page) {
                 http.Http.get(config.Config.mypackagesCommon, {
                     page: page,
-                    size: 20,
-                    name: self.searchName
+                    size: pageSize,
+                    name: this.searchName
                 }, msg => {
                     this.contentCount = msg.count;
                     this.currentPage = msg.page;
                     this.totalPage = msg.pageCount;
                     this.contentList = msg.rows;
+                    this.modifyPageList();
                 }, err => {
                     this.alertComponentActive('common-error-alert', err.responseJSON.message);
                 });
             },
             deleteSearchName: function () {
                 this.searchName = '';
+                this.getContent(1);
             },
             alertComponentActive(className, text){
                 this.alertComponentList.push({className, text});
                 setTimeout(()=>{
                     this.alertComponentList.shift();
                 }, 3000);
+            },
+            modifyPageList() {
+                let pageObj = pageNation.PageNation.pageList(this.currentPage, this.totalPage);
+                this.pageList = pageObj.pageList;
+                this.preEll = pageObj.preEll;
+                this.lastEll = pageObj.lastEll;
+            },
+            pageChange(page) {
+                let selectPage = pageNation.PageNation.selectPage(page, this.currentPage, this.totalPage);
+                console.log(selectPage);
+                if(selectPage > 0) {
+                    this.getContent(selectPage)
+                }
             }
         }
     }

@@ -66,7 +66,6 @@
                  v-on:listenCancelDelete="confirmDelete"
                  v-on:listenselectEvent="confirmselect"
                  v-on:listenHideEvent="hideTipe">
-
             </div>
         </div>
     </div>

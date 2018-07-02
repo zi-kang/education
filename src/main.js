@@ -6,6 +6,7 @@ import store from './store'
 import './assets/css/global.less'
 import './assets/css/icon.less'
 import './assets/css/addCourse.less'
+import './assets/css/course.less'
 
 import  VueQuillEditor from 'vue-quill-editor'
 // require styles 引入样式
