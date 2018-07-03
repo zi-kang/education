@@ -8,7 +8,7 @@
             <router-link to="/course"><i class="dlb vtm icon-back p-pointer add-class-btn"></i></router-link>
             <span class="dlb vtm" style="margin-left: 10px">课程详情</span>
             <button type="button" class="dlb vtm common-delete-btn-style fr p-pointer" @click="deleteCourse">删除</button>
-            <button type="button" class="dlb vtm common-confirm-btn-style fr p-pointer">编辑</button>
+            <router-link :to="{path: '/course/modify/' + uuid}" class="dlb vtm common-confirm-btn-style t-center fr p-pointer">编辑</router-link>
         </div>
         <div class="course-desc-nav pf b-sizing">
             <a href="#all" class="db b-sizing" v-bind:class="{active: isActive == 1}" @click="changeShowBlock(1)">总览</a>

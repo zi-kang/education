@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Index from './views/Index.vue'
 import Course from './views/Course.vue'
 import CourseDesc from './views/CourseDesc.vue'
+import CourseModify from './views/CourseModify.vue'
 import AddCourse from './views/AddCourse.vue'
 import UserInfo from './views/UserInfo.vue'
 import Content from './views/Content.vue'
@@ -34,6 +35,14 @@ export default new Router({
             }
         },
         {
+            path: '/course/addCourse',
+            name: 'addCourse',
+            component: AddCourse,
+            meta: {
+                title: 'AR教育-添加课程'
+            }
+        },
+        {
             path: '/course/:id',
             name: 'CourseDesc',
             component: CourseDesc,
@@ -42,11 +51,11 @@ export default new Router({
             }
         },
         {
-            path: '/course/addCourse',
-            name: 'addCourse',
-            component: AddCourse,
+            path: '/course/modify/:id',
+            name: 'CourseModify',
+            component: CourseModify,
             meta: {
-                title: 'AR教育-添加课程'
+                title: 'AR教育-课程详情'
             }
         },
         {

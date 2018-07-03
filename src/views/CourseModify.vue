@@ -1,4 +1,5 @@
 <template>
+    <!--<div id="courseModify"></div>-->
     <div id="addCourseItemPage" class="pr common-page-style b-sizing" @click="globalClick">
         <div  class="common-alert-block p-center">
             <AlertComponent v-for="item in alertComponentList" :className="item.className" :msg = "item.text"></AlertComponent>
@@ -37,7 +38,11 @@
             </div>
             <div class="clearfix"></div>
             <p class="add-title-text-common">课程描述</p>
-            <Editor v-on:listenChangeEvent="changeEditor" defaultHtml=""></Editor>
+            <div :is="EditorComponent"
+                 v-on:listenChangeEvent="changeEditor"
+                 :defaultHtml="descInfoHtml">
+            </div>
+            <!--<Editor v-on:listenChangeEvent="changeEditor" :defaultHtml="descInfoHtml"></Editor>-->
             <p class="add-title-text-common">课程内容</p>
             <div class="select-content-show pr active-btns clearfix b-sizing" v-for="item in selectContentItem">
                 <i class="dlb pa icon-delete p-pointer" @click="deletContent(item.info.uuid)"></i>
@@ -80,9 +85,10 @@
     import ContentList from '@/components/ContentList.vue';
     import AlertTip from '@/components/AlertTip.vue';
     export default {
-        name: "AddCourse",
+        name: "CourseModify",
         data() {
             return {
+                uuid: '',
                 clickShow: false,
                 courseName: '',
                 selectTypeId: '',
@@ -91,19 +97,23 @@
                 descInfoHtml: '',
                 selectedImageFile: '',
                 coverImage: '/static/image/empty_cover.jpg',
+                coverUuid: '',
                 alertComponentList: [],
                 isTips: false,
                 tipComponent: null,
+                EditorComponent: null,
                 selectContentId: '',
                 selectContentItem: [],
                 courseTitleList: {},
                 courseDescList:{}
             }
         },
-        beforeCreate: function () {
+        mounted() {
             document.title = 'AR教育-课程';
             this.$store.dispatch('getStatus');
             this.$store.dispatch('getCategories');
+            this.uuid = window.location.pathname.split('modify/').pop();
+            this.getCourseDesc();
         },
         components: {
             Nav,
@@ -118,6 +128,35 @@
             }
         },
         methods: {
+            getCourseDesc(){
+                this.$store.dispatch('loading');
+                http.Http.get(config.Config.getClassList + '/' + this.uuid, '', msg => {
+                    this.$store.dispatch('removeLoading');
+                    this.courseName = msg.course.name;
+                    this.selectTypeId = msg.course.categoryId;
+                    this.coverImage = msg.course.preview;
+                    this.coverUuid = msg.course.coverUuid;
+                    this.descInfoHtml = msg.course.intro;
+                    for (let i = 0, j = this.$store.state.categories.length; i < j; i++) {
+                        if (this.$store.state.categories[i].id === msg.course.categoryId) {
+                            this.selectName = this.$store.state.categories[i].name;
+                            break;
+                        }
+                    }
+                    for(let n = 0, m = msg.packages.length; n < m; n++) {
+                        this.courseTitleList[msg.packages[n].uuid] =  msg.packages[n].name;
+                        this.courseDescList[msg.packages[n].uuid] = msg.packages[n].intro;
+                        let packages = {
+                            info: msg.packages[n]
+                        };
+                        this.selectContentItem.push(packages);
+                    }
+                    this.EditorComponent = Editor;
+                }, err => {
+                    this.$store.dispatch('removeLoading');
+                    this.alertComponentActive('common-error-alert', err.responseJSON.message);
+                });
+            },
             changeEditor(msg) {
                 this.descInfoText = msg.text;
                 this.descInfoHtml = msg.html;
@@ -146,6 +185,7 @@
                 } else if (this.selectedImageFile.size > 2097152 ){
                     this.errorAlert('请选择2M内的图片文件')
                 } else {
+                    this.coverUuid = '';
                     this.selectedImageFile = selectFile;
                     this.coverImage = windowURL.createObjectURL(this.selectedImageFile);
                 }
@@ -155,9 +195,9 @@
                     this.errorAlert('请输入课程名称')
                 } else if (this.selectTypeId === '') {
                     this.errorAlert('请选择课程分类')
-                } else if (this.selectedImageFile === '') {
+                } else if (this.coverUuid === '') {
                     this.errorAlert('请选择封面')
-                } else if (this.descInfoText.length === 0) {
+                } else if (this.descInfoHtml.length === 0) {
                     this.errorAlert('请输入课程描述')
                 } else if (this.descInfoText.length > 500) {
                     this.errorAlert('课程描述不能大于500个字符')
@@ -172,23 +212,23 @@
                 }
             },
             checkoutCourseTitle(){
-              let charge = true;
-              for(let name in this.courseTitleList) {
-                  if(this.courseTitleList[name] === '') {
-                      charge = false;
-                  }
-              }
+                let charge = true;
+                for(let name in this.courseTitleList) {
+                    if(this.courseTitleList[name] === '') {
+                        charge = false;
+                    }
+                }
 
-              return charge
+                return charge
             },
             checkoutCourseDesc(){
-              let charge = true;
-              for(let desc in this.courseDescList) {
+                let charge = true;
+                for(let desc in this.courseDescList) {
                     if(this.courseDescList[desc] === '') {
                         charge = false;
                     }
                 }
-              return charge
+                return charge
             },
             errorAlert(text){
                 this.alertComponentActive('common-error-alert',text)
@@ -221,8 +261,6 @@
                     this.$store.dispatch('removeLoading');
                     this.courseTitleList[msg.info.uuid] =  msg.info.name;
                     this.courseDescList[msg.info.uuid] = msg.info.intro;
-                    this.courseTitle = msg.info.name;
-                    this.courseDesc = msg.info.intro;
                     this.selectContentItem.push(msg);
                 }, err => {
                     this.$store.dispatch('removeLoading');
@@ -247,31 +285,37 @@
             },
             //预览图上传到七牛
             uploadCoverToQiNiu(){
-                this.$store.dispatch('loading');
-                let fileType = this.selectedImageFile.type.split('/').pop() === 'png' ? 'png' : 'jpg';
-                http.Http.get(config.Config.getImageToken + fileType, '', msg => {
-                    let params = new FormData();
-                    params.append('file', this.selectedImageFile);
-                    params.append('key', msg.key);
-                    params.append('token', msg.token);
-                    http.Http.postFile('//up.qbox.me', params, (data) => {
-                        this.$store.dispatch('removeLoading');
-                        this.createCourseRequest(data);
-                    }, (err) => {
+                if(this.coverUuid != '') {
+                    this.createCourseRequest();
+                } else {
+                    this.$store.dispatch('loading');
+                    let fileType = this.selectedImageFile.type.split('/').pop() === 'png' ? 'png' : 'jpg';
+                    http.Http.get(config.Config.getImageToken + fileType, '', msg => {
+                        let params = new FormData();
+                        params.append('file', this.selectedImageFile);
+                        params.append('key', msg.key);
+                        params.append('token', msg.token);
+                        http.Http.postFile('//up.qbox.me', params, (data) => {
+                            this.$store.dispatch('removeLoading');
+                            this.coverUuid = data.uuid;
+                            this.createCourseRequest();
+                        }, () => {
+                            this.$store.dispatch('removeLoading');
+                            this.errorAlert('网络错误，请重试')
+                        })
+                    }, () => {
                         this.$store.dispatch('removeLoading');
                         this.errorAlert('网络错误，请重试')
-                    })
-                }, err => {
-                    this.$store.dispatch('removeLoading');
-                    this.errorAlert('网络错误，请重试')
-                });
+                    });
+                }
+
             },
-            createCourseRequest(data){
+            createCourseRequest(){
                 this.$store.dispatch('loading');
                 let params = {
                     name: this.courseName,
                     categoryId: parseInt(this.selectTypeId),
-                    coverUuid: data.uuid,
+                    coverUuid: this.coverUuid,
                     intro: this.descInfoHtml,
                     packages: []
                 };
@@ -280,10 +324,9 @@
                         uuid: this.selectContentItem[i].info.uuid,
                         name: this.courseTitleList[this.selectContentItem[i].info.uuid],
                         intro: this.courseDescList[this.selectContentItem[i].info.uuid]
-
                     })
                 }
-                http.Http.postToBody(config.Config.getClassList, params, msg => {
+                http.Http.putToBody(config.Config.getClassList + '/' + this.uuid, params, () => {
                     this.$store.dispatch('removeLoading');
                     this.alertComponentActive('common-success-alert', '保存成功');
                     setTimeout(()=>{
@@ -298,3 +341,7 @@
         }
     }
 </script>
+
+<style scoped>
+
+</style>
