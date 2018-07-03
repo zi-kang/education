@@ -4,7 +4,7 @@
             <AlertComponent v-bind:key="item.key" v-for="item in alertComponentList" :className="item.className" :msg="item.text"></AlertComponent>
         </div>
         <Nav></Nav>
-        <div class="content-desc-page-top common-page-top b-sizing t-left pf clearfix">
+        <div class="content-desc-page-top common-page-top b-sizing t-left clearfix">
             <router-link to="/content"><i class="dlb vtm icon-back p-pointer add-class-btn"></i></router-link>
             <span class="dlb vtm" style="margin-left: 10px">AR内容</span>
             <button type="button" class="dlb vtm common-delete-btn-style fr p-pointer" @click="deleteContent">删除</button>
@@ -17,8 +17,21 @@
                  v-on:listenHideEvent="hideTipe">
             </div>
         </div>
-        <div v-bind:key="item.info.uuid" class="content-desc-main" v-for="item in contentObj">
-
+        <div v-bind:key="item.info.uuid" class="content-desc-main t-left" v-for="item in contentObj">
+            <h1 class="ell">{{item.info.name}}</h1>
+            <span class="add-time">{{addTime}}</span>
+            <div class="content-cover-section clearfix">
+                <div class="cover-image pr fl">
+                    <img :src="previewImg" alt="" class="v-center">
+                </div>
+                <div class="active-cover-img fr">
+                    <div v-bind:key="image.uuid" v-for="image in item.photos" class="active-cover-img pr p-pointer" @click="changePriview(image.preview)">
+                        <img :src="image.preview" alt="" class="v-center">
+                    </div>
+                </div>
+            </div>
+            <p class="section-title">课程内容</p>
+            <div class="desc-block b-sizing">{{item.info.intro}}</div>
         </div>
     </div>
 </template>
@@ -57,6 +70,14 @@
             this.$store.dispatch('getStatus');
             this.getContentDesc();
         },
+        computed:{
+            addTime: function () {
+                return common.Common.getTime(this.contentObj[0].info.addTime)
+            },
+            previewImg: function () {
+                return this.preview
+            }
+        },
         methods:{
             errorAlert(text) {
                 this.alertComponentActive('common-error-alert', text)
@@ -77,6 +98,7 @@
                 http.Http.get(config.Config.mypackagesCommon + '/' + this.uuid, '', msg => {
                     this.$store.dispatch('removeLoading');
                     this.contentObj.push(msg);
+                    this.preview = msg.info.preview
                 }, err => {
                     this.$store.dispatch('removeLoading');
                     this.alertComponentActive('common-error-alert', err.responseJSON.message);
@@ -87,8 +109,23 @@
                 this.tipComponent = AlertTip;
             },
             deleteContentRequest(){
-                this.hideTipe()
+                this.hideTipe();
+                this.$store.dispatch('loading');
+                http.Http.post(config.Config.mypackagesCommon + '/' + this.uuid + '/backup', '', () => {
+                    this.$store.dispatch('removeLoading');
+                    this.alertComponentActive('common-success-alert', '删除成功');
+                    setTimeout(()=>{
+                        window.location.href = '/content'
+                    }, 100)
+                }, err => {
+                    this.$store.dispatch('removeLoading');
+                    this.alertComponentActive('common-error-alert', err.responseJSON.message);
+                });
+            },
+            changePriview(newPriview){
+                this.preview = newPriview;
             }
+
 
         }
     }
