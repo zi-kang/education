@@ -8,6 +8,7 @@ import UserInfo from './views/UserInfo.vue'
 import Content from './views/Content.vue'
 import addContent from './views/addContent.vue'
 import ContentDesc from './views/ContentDesc.vue'
+import ContentModify from './views/ContentModify.vue'
 
 import NotFont from './views/NotFont.vue'
 
@@ -70,6 +71,14 @@ export default new Router({
             component: ContentDesc,
             meta: {
                 title: 'AR教育-AR内容详情'
+            }
+        },
+        {
+            path: '/content/modify/:id',
+            name: 'ContentModify',
+            component: ContentModify,
+            meta: {
+                title: 'AR教育-AR内容编辑'
             }
         },
         {

@@ -8,7 +8,7 @@
             <router-link to="/content"><i class="dlb vtm icon-back p-pointer add-class-btn"></i></router-link>
             <span class="dlb vtm" style="margin-left: 10px">AR内容</span>
             <button type="button" class="dlb vtm common-delete-btn-style fr p-pointer" @click="deleteContent">删除</button>
-            <button type="button" class="dlb vtm common-confirm-btn-style fr p-pointer">编辑</button>
+            <router-link :to="{path: '/content/modify/' + uuid}" class="dlb vtm common-confirm-btn-style t-center fr p-pointer">编辑</router-link>
         </div>
         <div id="commonTips" v-if="isTips">
             <div :is="tipComponent"

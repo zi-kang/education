@@ -1,13 +1,13 @@
 <template>
-    <div id="addContentPage">
+    <div id="contentModify">
         <div  class="common-alert-block p-center">
-            <AlertComponent v-for="item in alertComponentList" :className="item.className" :msg = "item.text"></AlertComponent>
+            <AlertComponent v-bind:key="item.className" v-for="item in alertComponentList" :className="item.className" :msg = "item.text"></AlertComponent>
         </div>
         <Nav></Nav>
         <!--全局搜索可以做一个组件的-->
         <div class="education-content-page-top common-page-top b-sizing t-left pr">
             <router-link to="/content"><i class="dlb vtm icon-back p-pointer"></i></router-link>
-            <span class="dlb vtm class-name">添加AR内容</span>
+            <span class="dlb vtm class-name">编辑AR内容</span>
         </div>
         <div class="add-content-main b-sizing">
             <div class="add-content-top-common dlb vtm mr20">
@@ -50,7 +50,7 @@
             </div>
             <p class="add-content-title-common">描述</p>
             <textarea  v-model="descInfoText" class="db b-sizing eidtor-block active-btns" maxlength="500" placeholder="请输入内容描述" />
-            <a href="javascript: void (0)" class="dlb common-confirm-create-btns t-center p-pointer" @click="createContent">确认创建</a>
+            <a href="javascript: void (0)" class="dlb common-confirm-create-btns t-center p-pointer" @click="createContent">保存</a>
         </div>
     </div>
 </template>
@@ -61,39 +61,42 @@
     import Nav from '@/components/Nav.vue';
     import AlertComponent from '@/components/AlertComponent.vue';
     export default {
-        name: "addContent",
+        name: "ContentModify",
         data(){
-          return {
-              addImageText: '选择文件',
-              contentName: '',
-              selectedContentFile: '',
-              selectedImageCoveList: [],
-              alertComponentList: [],
-              contentFileName: '',
-              coverImage: '/static/image/empty_cover.jpg',
-              descInfoText: '',
-              contentFileToken: {},
-              contentQiNiuInfo: {},
-              imageFileToken: [],
-              imageCoverUUid: '',
-              contentGetRight: true,
-              shouldGetContent: true,
-              coverImageGetRight: true,
-              uploadRequestNum: 0
-          }
+            return {
+                uuid: '',
+                addImageText: '选择文件',
+                contentName: '',
+                selectedContentFile: '',
+                selectedImageCoveList: [],
+                alertComponentList: [],
+                contentFileName: '',
+                coverImage: '/static/image/empty_cover.jpg',
+                descInfoText: '',
+                contentFileToken: {},
+                contentQiNiuInfo: {},
+                imageFileToken: [],
+                imageCoverUUid: '',
+                contentGetRight: true,
+                shouldGetContent: true,
+                coverImageGetRight: true,
+                uploadRequestNum: 0
+            }
         },
-        beforeCreate: function () {
-            document.title = 'AR教育-添加AR内容';
+        mounted() {
+            document.title = 'AR教育-AR内容编辑';
+            this.uuid = window.location.pathname.split('modify/').pop();
             this.$store.dispatch('getStatus');
+            this.getContentDesc();
         },
         components: {
             Nav,
             AlertComponent
         },
         computed:{
-          selectCount: function () {
-              return this.selectedImageCoveList.length
-          }
+            selectCount: function () {
+                return this.selectedImageCoveList.length
+            }
         },
         methods: {
             alertComponentActive(className, text){
@@ -103,25 +106,55 @@
                 }, 3000);
             },
             errorAlert(errMsg) {
-              this.alertComponentActive('common-error-alert', errMsg)
+                this.alertComponentActive('common-error-alert', errMsg)
+            },
+            getContentDesc(){
+                this.$store.dispatch('loading');
+                http.Http.get(config.Config.mypackagesCommon + '/' + this.uuid, '', msg => {
+                    console.log(msg);
+                    this.$store.dispatch('removeLoading');
+                    this.contentName = msg.info.name;
+                    this.contentFileName = msg.info.name;
+                    this.descInfoText = msg.info.intro;
+                    this.contentQiNiuInfo.uuid = msg.info.workUuid;
+                    for(let i = 0, j = msg.photos.length; i < j; i++) {
+                        let photosItem = {
+                            files: msg.photos[i],
+                            fileUrl:  msg.photos[i].preview,
+                            isCover: false,
+                            isError: false,
+                            uuid: msg.photos[i].uuid
+                        };
+                        if(msg.info.coverUuid === msg.photos[i].uuid){
+                            photosItem.isCover = true;
+                        }
+                        this.selectedImageCoveList.push(photosItem);
+                    }
+                    this.selectedContentFile = true;
+                    this.shouldGetContent = false;
+                }, err => {
+                    this.$store.dispatch('removeLoading');
+                    this.errorAlert(err.responseJSON.message);
+                });
             },
             fileChange: function (e) {
-                if($(e.target).val() === '') return;
+                if(e.target.value === '') return;
                 let selectedFile = e.target.files[0];
-                $(e.target).val('');
+                e.target.value = '';
                 if(selectedFile.name.split('.').pop() != 'ezp') {
                     this.errorAlert('请选择ezp格式的文件');
                 } else if (Math.ceil(selectedFile.size) > 52428800) {
                     this.errorAlert('文件大小不允许超过50m');
                 } else {
+                    this.shouldGetContent = true;
                     this.selectedContentFile = selectedFile;
                     this.contentFileName = selectedFile.name;
                 }
             },
             coverFileChange: function (e) {
-                if($(e.target).val() === '') return;
+                if(e.target.value === '') return;
                 let selcedFile = e.target.files[0];
-                $(e.target).val('');
+                e.target.value = '';
                 if(this.selectedImageCoveList.length === 6) {
                     this.alertComponentActive('common-alert-alert', '最多上传6张预览图');
                     return;
@@ -186,11 +219,11 @@
                 } else {
                     this.uploadRequestNum = 0;
 
-                    for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
+                    /*for(let i = 0, j = this.selectedImageCoveList.length; i < j; i++) {
                         if(!this.selectedImageCoveList[i].isError) {
                             this.uploadRequestNum++;
                         }
-                    }
+                    }*/
                     this.$store.dispatch('loading');
                     if(!this.shouldGetContent) {
                         this.uploadRequestNum++;
@@ -205,7 +238,7 @@
                     this.contentFileToken = msg;
                     this.contentGetRight = true;
                     this.uploadContentToQiNiu();
-                }, err => {
+                }, () => {
                     this.shouldGetContent = true;
                     this.contentGetRight = false;
                     this.afterRequestCommon();
@@ -219,12 +252,13 @@
                             this.selectedImageCoveList[i].uploadToken = msg.token;
                             this.selectedImageCoveList[i].uploadKey = msg.key;
                             this.selectedImageCoveList[i].isError = false;
-
                             this.uploadCoverToQiNiu(this.selectedImageCoveList[i], i);
-                        }, err => {
+                        }, () => {
                             this.selectedImageCoveList[i].isError = true;
                             this.afterRequestCommon();
                         });
+                    } else {
+                        this.afterRequestCommon();
                     }
                 }
             },
@@ -240,7 +274,7 @@
                     this.contentQiNiuInfo = msg;
                     console.log(this.contentQiNiuInfo);
                     this.afterRequestCommon();
-                }, (err) => {
+                }, () => {
                     this.shouldGetContent = true;
                     this.contentGetRight = false;
                     this.afterRequestCommon();
@@ -256,7 +290,7 @@
                     this.selectedImageCoveList[i].assetUrl = msg.assetUrl;
                     this.selectedImageCoveList[i].uuid = msg.uuid;
                     this.afterRequestCommon();
-                }, (err) => {
+                }, () => {
                     this.selectedImageCoveList[i].isError = true;
                     this.afterRequestCommon();
                 })
@@ -299,7 +333,7 @@
                         params.coverUuid =  this.selectedImageCoveList[i].uuid;
                     }
                 }
-                http.Http.postToBody(config.Config.mypackagesCommon, params, msg => {
+                http.Http.putToBody(config.Config.mypackagesCommon + '/' + this.uuid, params, () => {
                     this.$store.dispatch('removeLoading');
                     this.alertComponentActive('common-success-alert', '保存成功');
                     setTimeout(()=>{
@@ -315,3 +349,7 @@
         }
     }
 </script>
+
+<style scoped>
+
+</style>

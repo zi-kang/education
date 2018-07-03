@@ -9,6 +9,8 @@ import './assets/css/addCourse.less'
 import './assets/css/course.less'
 import './assets/css/courseDesc.less'
 import './assets/css/contentDescPage.less'
+import './assets/css/addContent.less'
+import './assets/css/contentModify.less'
 
 import  VueQuillEditor from 'vue-quill-editor'
 // require styles 引入样式
