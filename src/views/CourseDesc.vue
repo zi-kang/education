@@ -6,7 +6,7 @@
         <Nav class="pf"></Nav>
         <div class="course-desc-page-top common-page-top b-sizing t-left pf clearfix">
             <router-link to="/course"><i class="dlb vtm icon-back p-pointer add-class-btn"></i></router-link>
-            <span class="dlb vtm" style="margin-left: 10px">课程详情</span>
+            <span class="dlb vtm" style="margin-left: 10px">课程</span>
             <button type="button" class="dlb vtm common-delete-btn-style fr p-pointer" @click="deleteCourse">删除</button>
             <router-link :to="{path: '/course/modify/' + uuid}" class="dlb vtm common-confirm-btn-style t-center fr p-pointer">编辑</router-link>
         </div>
@@ -55,6 +55,7 @@
                     </router-link>
                 </div>
             </div>
+            <Footer></Footer>
         </div>
         <div id="commonTips" v-if="isTips">
             <div :is="tipComponent"
@@ -75,6 +76,7 @@
     import AlertComponent from '@/components/AlertComponent.vue';
     import GetCode from '@/components/GetCode.vue';
     import AlertTip from '@/components/AlertTip.vue';
+    import Footer from '@/components/Footer.vue';
 
     export default {
         name: "CourseDesc",
@@ -94,7 +96,8 @@
             Nav,
             AlertComponent,
             GetCode,
-            AlertTip
+            AlertTip,
+            Footer
         },
         mounted() {
             this.uuid = window.location.pathname.split('course/').pop();

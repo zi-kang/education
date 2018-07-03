@@ -1,5 +1,5 @@
 <template>
-    <div id="contentPage">
+    <div id="contentPage" class="pr">
         <div  class="common-alert-block p-center">
             <AlertComponent v-for="item in alertComponentList" :className="item.className" :msg = "item.text"></AlertComponent>
         </div>
@@ -23,14 +23,14 @@
                     <span class="dlb vtm">添加AR内容</span>
                 </router-link>
             </div>
-            <div class="content-item-list-section clearfix">
+            <div class="content-item-list-section clearfix pr">
                 <div v-for="item in contentList" class="content-item active-btns t-left fl b-sizing">
                     <h4 class="ell">{{item.name}}</h4>
                     <router-link :to="{path: '/content/' + item.uuid}" class="db item-cover-image pr">
                         <img :src="item.preview" class="v-center db" alt="">
                     </router-link>
                 </div>
-                <ul v-show="totalPage > 1" id="commonPageNation" class="clearfix content-list-page fr">
+                <ul v-show="totalPage > 1" id="commonPageNation" class="clearfix content-list-page pa">
                     <li class="fl" @click="pageChange(currentPage - 1)"> < </li>
                     <li class="fl" v-if="preEll" @click="pageChange(1)">1</li>
                     <li class="fl page-ell" v-if="preEll" @click="pageChange(currentPage - 5)">...</li>
@@ -41,7 +41,7 @@
                 </ul>
             </div>
         </div>
-
+        <Footer></Footer>
     </div>
 </template>
 
@@ -50,9 +50,10 @@
     import http from '../http';
     import Nav from '@/components/Nav.vue';
     import AlertComponent from '@/components/AlertComponent.vue';
+    import Footer from '@/components/Footer.vue';
     import pageNation from '../pageNation';
 
-    const pageSize = 2;
+    const pageSize = 15;
     export default {
         name: "Content",
         data(){
@@ -89,7 +90,8 @@
         },
         components: {
             Nav,
-            AlertComponent
+            AlertComponent,
+            Footer
         },
         methods:{
             getContent: function (page) {
@@ -135,6 +137,14 @@
 </script>
 
 <style scoped lang="less">
+    #contentPage{
+        width: 100%;
+        min-height: 100%;
+        #commonPageNation{
+            right: 0;
+            bottom: -30px;
+        }
+    }
     .content-main{
         width: 100%;
         min-height: 500px;

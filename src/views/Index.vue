@@ -47,28 +47,6 @@
                 console.log(err);
                 localStorage.educationToken = '';
             });
-            /* window.handleResponse = function (data) {
-                 console.log(data)
-             };
-             var script = document.createElement("script");
-             script.src = "//passport.sightp.com/v4/token?callback=handleResponse";
-             document.body.insertBefore(script, document.body.lastChild);*/
-            /*$.ajax({
-                url: "//passport.sightp.com/v4/token",
-                type: "get",
-                dataType: "jsonp",
-                jsonp: "callback", //这里定义了callback的参数名称，以便服务获取callback的函数名即getMessage
-                success: function (msg) {
-                    self.isLogin = true;
-                    self.userName = msg.username;
-                    self.userImage = '//sightpimage-cdn.sightp.com/avatar/' + msg.userId + '_middle.jpg';
-                    localStorage.educationToken = msg.token;
-                    self.$store.dispatch('getRight');
-                },
-                error: function () {
-                    localStorage.educationToken = '';
-                }
-            });*/
         },
         computed: {
             hasRight: function () {

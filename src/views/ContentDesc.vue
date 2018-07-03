@@ -1,5 +1,5 @@
 <template>
-    <div id="contentDescPage">
+    <div id="contentDescPage" class="pr">
         <div class="common-alert-block p-center">
             <AlertComponent v-bind:key="item.key" v-for="item in alertComponentList" :className="item.className" :msg="item.text"></AlertComponent>
         </div>
@@ -33,6 +33,7 @@
             <p class="section-title">课程内容</p>
             <div class="desc-block b-sizing">{{item.info.intro}}</div>
         </div>
+        <Footer></Footer>
     </div>
 </template>
 
@@ -44,6 +45,7 @@
     import AlertComponent from '@/components/AlertComponent.vue';
     import GetCode from '@/components/GetCode.vue';
     import AlertTip from '@/components/AlertTip.vue';
+    import Footer from '@/components/Footer.vue';
 
     export default {
         name: "ContentDesc",
@@ -62,7 +64,8 @@
             Nav,
             AlertComponent,
             GetCode,
-            AlertTip
+            AlertTip,
+            Footer
         },
         mounted() {
             document.title = 'AR教育-AR内容详情';
@@ -130,7 +133,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>

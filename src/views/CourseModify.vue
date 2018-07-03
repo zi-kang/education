@@ -1,13 +1,12 @@
 <template>
-    <!--<div id="courseModify"></div>-->
     <div id="addCourseItemPage" class="pr common-page-style b-sizing" @click="globalClick">
         <div  class="common-alert-block p-center">
             <AlertComponent v-for="item in alertComponentList" :className="item.className" :msg = "item.text"></AlertComponent>
         </div>
         <Nav></Nav>
         <div class="education-class-page-top common-page-top b-sizing t-left pr">
-            <router-link to="/course"><i class="dlb vtm icon-back p-pointer back-to-course"></i></router-link>
-            <span class="dlb vtm class-name">创建课程</span>
+            <router-link :to="{path: '/course/' + uuid}"><i class="dlb vtm icon-back p-pointer back-to-course"></i></router-link>
+            <span class="dlb vtm class-name">课程详情</span>
         </div>
         <div class="add-course-main clearfix">
             <div class="add-top-left fl t-left">
@@ -63,7 +62,8 @@
                 <i class="dlb vtm icon-add"></i>
                 <span class="dlb vtm">选择AR内容</span>
             </div>
-            <a href="javascript: void (0)" class="dlb common-confirm-create-btns t-center p-pointer" @click="createCourse">确认创建</a>
+            <a href="javascript: void (0)" class="dlb common-confirm-create-btns t-center p-pointer" @click="createCourse">保存</a>
+            <Footer></Footer>
         </div>
         <div id="commonTips" v-if="isTips">
             <div :is="tipComponent"
@@ -84,6 +84,7 @@
     import AlertComponent from '@/components/AlertComponent.vue';
     import ContentList from '@/components/ContentList.vue';
     import AlertTip from '@/components/AlertTip.vue';
+    import Footer from '@/components/Footer.vue';
     export default {
         name: "CourseModify",
         data() {
@@ -120,7 +121,8 @@
             Editor,
             AlertComponent,
             ContentList,
-            AlertTip
+            AlertTip,
+            Footer
         },
         computed: {
             categories: function () {

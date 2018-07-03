@@ -59,6 +59,7 @@
                 <span class="dlb vtm">选择AR内容</span>
             </div>
             <a href="javascript: void (0)" class="dlb common-confirm-create-btns t-center p-pointer" @click="createCourse">确认创建</a>
+            <Footer></Footer>
         </div>
         <div id="commonTips" v-if="isTips">
             <div :is="tipComponent"
@@ -79,6 +80,7 @@
     import AlertComponent from '@/components/AlertComponent.vue';
     import ContentList from '@/components/ContentList.vue';
     import AlertTip from '@/components/AlertTip.vue';
+    import Footer from '@/components/Footer.vue';
     export default {
         name: "AddCourse",
         data() {
@@ -110,7 +112,8 @@
             Editor,
             AlertComponent,
             ContentList,
-            AlertTip
+            AlertTip,
+            Footer
         },
         computed: {
             categories: function () {

@@ -60,6 +60,7 @@
     import http from '../http';
     import Nav from '@/components/Nav.vue';
     import AlertComponent from '@/components/AlertComponent.vue';
+    import Footer from '@/components/Footer.vue';
     export default {
         name: "addContent",
         data(){
@@ -88,7 +89,8 @@
         },
         components: {
             Nav,
-            AlertComponent
+            AlertComponent,
+            Footer
         },
         computed:{
           selectCount: function () {

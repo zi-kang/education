@@ -1,5 +1,5 @@
 <template>
-    <div id="userInfoPage">
+    <div id="userInfoPage" class="pr">
         <div  class="common-alert-block p-center">
             <AlertComponent v-for="item in alertComponentList" :className="item.className" :msg = "item.text"></AlertComponent>
         </div>
@@ -21,6 +21,7 @@
             <input type="password" class="confirm-password b-sizing" maxlength="20" placeholder="请再次输入新密码" v-model="confirmPwd">
             <button type="button" class="p-pointer" @click="confirmChange">保存</button>
         </div>
+        <Footer></Footer>
     </div>
 </template>
 
@@ -31,6 +32,7 @@
     import http from '../http';
     import AlertComponent from '@/components/AlertComponent.vue';
     import Nav from '@/components/Nav.vue';
+    import Footer from '@/components/Footer.vue';
     export default {
         name: "UserInfo",
         data(){
@@ -47,7 +49,8 @@
         },
         components: {
             Nav,
-            AlertComponent
+            AlertComponent,
+            Footer
         },
         computed:{
             userName: function () {
@@ -98,7 +101,8 @@
 
 <style scoped>
     #userInfoPage{
-        min-height: 800px;
+        min-height: 100%;
+        padding-bottom: 40px;
     }
     .user-info-main{
         width: 380px;

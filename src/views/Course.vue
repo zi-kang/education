@@ -26,36 +26,39 @@
             </a>
         </div>
         <div class="class-page-right b-sizing pr">
-            <div class="course-empty v-center common-empty" v-if="searchActive && courseRows.length === 0">
-                <img src="../assets/image/course-empty.png" alt="" class="db empty-course-img">
-                <span class="db empty-text">没有找到相应课程</span>
+            <div class="class-page-right-main pr clearfix">
+                <div class="course-empty v-center common-empty" v-if="searchActive && courseRows.length === 0">
+                    <img src="../assets/image/course-empty.png" alt="" class="db empty-course-img">
+                    <span class="db empty-text">没有找到相应课程</span>
+                </div>
+                <div class="course-empty common-empty v-center" v-else-if="!searchActive && courseRows.length === 0">
+                    <img src="../assets/image/course-empty.png" alt="" class="db empty-course-img">
+                    <span class="db empty-text">还没有任何课程</span>
+                    <router-link to="/course/addCourse" class="add-common-item-btn add-course-item-btn dlb">
+                        <i class="dlb vtm icon-add"></i>
+                        <span class="dlb vtm">创建课程</span>
+                    </router-link>
+                </div>
+                <div v-bind:key="item.code" v-for="item in courseRows" class="course-list-item active-btns fl b-sizing clearfix t-left active-btns pr">
+                    <h4 class="ell">{{item.name}}</h4>
+                    <i class="code-common-code dlb pa icon-code p-pointer" @click="getCode(item.code)"></i>
+                    <i class="dlb pa vtm icon-menu icon-menu-style"></i>
+                    <span class="course-type dlb vtm">{{item.categoryName}}</span>
+                    <router-link :to="{path: '/course/'+ item.uuid}" class="db pre-image pr">
+                        <img :src="item.preview" alt="" class="db v-center">
+                    </router-link>
+                </div>
+                <ul v-show="totalPage > 1" id="commonPageNation" class="clearfix content-list-page pa">
+                    <li class="fl" @click="pageChange(currentPage - 1)"> < </li>
+                    <li class="fl" v-if="preEll" @click="pageChange(1)">1</li>
+                    <li class="fl page-ell" v-if="preEll" @click="pageChange(currentPage - 5)">...</li>
+                    <li class="fl" v-bind:class="{active: item === currentPage}" v-for="item in pageList" v-bind:key="item" @click="pageChange(item)">{{item}}</li>
+                    <li class="fl page-ell" v-if="lastEll" @click="pageChange(currentPage + 5)">...</li>
+                    <li class="fl" v-if="lastEll" @click="pageChange(totalPage)">{{totalPage}}</li>
+                    <li class="fl" @click="pageChange(currentPage + 1)"> ></li>
+                </ul>
             </div>
-            <div class="course-empty common-empty v-center" v-else-if="!searchActive && courseRows.length === 0">
-                <img src="../assets/image/course-empty.png" alt="" class="db empty-course-img">
-                <span class="db empty-text">还没有任何课程</span>
-                <router-link to="/course/addCourse" class="add-common-item-btn add-course-item-btn dlb">
-                    <i class="dlb vtm icon-add"></i>
-                    <span class="dlb vtm">创建课程</span>
-                </router-link>
-            </div>
-            <div v-bind:key="item.code" v-for="item in courseRows" class="course-list-item active-btns fl b-sizing clearfix t-left active-btns pr">
-                <h4 class="ell">{{item.name}}</h4>
-                <i class="code-common-code dlb pa icon-code p-pointer" @click="getCode(item.code)"></i>
-                <i class="dlb pa vtm icon-menu icon-menu-style"></i>
-                <span class="course-type dlb vtm">{{item.categoryName}}</span>
-                <router-link :to="{path: '/course/'+ item.uuid}" class="db pre-image pr">
-                    <img :src="item.preview" alt="" class="db v-center">
-                </router-link>
-            </div>
-            <ul v-show="totalPage > 1" id="commonPageNation" class="clearfix content-list-page fr">
-                <li class="fl" @click="pageChange(currentPage - 1)"> < </li>
-                <li class="fl" v-if="preEll" @click="pageChange(1)">1</li>
-                <li class="fl page-ell" v-if="preEll" @click="pageChange(currentPage - 5)">...</li>
-                <li class="fl" v-bind:class="{active: item === currentPage}" v-for="item in pageList" v-bind:key="item" @click="pageChange(item)">{{item}}</li>
-                <li class="fl page-ell" v-if="lastEll" @click="pageChange(currentPage + 5)">...</li>
-                <li class="fl" v-if="lastEll" @click="pageChange(totalPage)">{{totalPage}}</li>
-                <li class="fl" @click="pageChange(currentPage + 1)"> ></li>
-            </ul>
+            <Footer></Footer>
         </div>
         <div id="commonTips" v-if="isTips">
             <div :is="tipComponent"
@@ -72,9 +75,11 @@
     import Nav from '@/components/Nav.vue';
     import AlertComponent from '@/components/AlertComponent.vue';
     import GetCode from '@/components/GetCode.vue';
+    import Footer from '@/components/Footer.vue';
+
     import pageNation from '../pageNation';
 
-    const pageSize = 2;
+    const pageSize = 15;
 
     export default {
         name: "course",
@@ -119,7 +124,8 @@
         components: {
             Nav,
             AlertComponent,
-            GetCode
+            GetCode,
+            Footer
         },
         computed: {
             categories: function () {

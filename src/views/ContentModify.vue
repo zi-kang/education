@@ -1,5 +1,5 @@
 <template>
-    <div id="contentModify">
+    <div id="contentModify" class="pr">
         <div  class="common-alert-block p-center">
             <AlertComponent v-bind:key="item.className" v-for="item in alertComponentList" :className="item.className" :msg = "item.text"></AlertComponent>
         </div>
@@ -52,6 +52,7 @@
             <textarea  v-model="descInfoText" class="db b-sizing eidtor-block active-btns" maxlength="500" placeholder="请输入内容描述" />
             <a href="javascript: void (0)" class="dlb common-confirm-create-btns t-center p-pointer" @click="createContent">保存</a>
         </div>
+        <Footer></Footer>
     </div>
 </template>
 
@@ -60,6 +61,7 @@
     import http from '../http';
     import Nav from '@/components/Nav.vue';
     import AlertComponent from '@/components/AlertComponent.vue';
+    import Footer from '@/components/Footer.vue';
     export default {
         name: "ContentModify",
         data(){
@@ -91,7 +93,8 @@
         },
         components: {
             Nav,
-            AlertComponent
+            AlertComponent,
+            Footer
         },
         computed:{
             selectCount: function () {
