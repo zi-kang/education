@@ -26,9 +26,9 @@
             <div class="content-item-list-section clearfix">
                 <div v-for="item in contentList" class="content-item active-btns t-left fl b-sizing">
                     <h4 class="ell">{{item.name}}</h4>
-                    <div class="item-cover-image pr">
+                    <router-link :to="{path: '/content/' + item.uuid}" class="db item-cover-image pr">
                         <img :src="item.preview" class="v-center db" alt="">
-                    </div>
+                    </router-link>
                 </div>
                 <ul v-show="totalPage > 1" id="commonPageNation" class="clearfix content-list-page fr">
                     <li class="fl" @click="pageChange(currentPage - 1)"> < </li>

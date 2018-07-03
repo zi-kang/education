@@ -43,9 +43,9 @@
                 <i class="code-common-code dlb pa icon-code p-pointer" @click="getCode(item.code)"></i>
                 <i class="dlb pa vtm icon-menu icon-menu-style"></i>
                 <span class="course-type dlb vtm">{{item.categoryName}}</span>
-                <div class="pre-image pr">
+                <router-link :to="{path: '/course/'+ item.uuid}" class="db pre-image pr">
                     <img :src="item.preview" alt="" class="db v-center">
-                </div>
+                </router-link>
             </div>
             <ul v-show="totalPage > 1" id="commonPageNation" class="clearfix content-list-page fr">
                 <li class="fl" @click="pageChange(currentPage - 1)"> < </li>

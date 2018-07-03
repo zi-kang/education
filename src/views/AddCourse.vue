@@ -40,7 +40,7 @@
             <Editor v-on:listenChangeEvent="changeEditor"></Editor>
             <p class="add-title-text-common">课程内容</p>
             <div class="select-content-show pr active-btns clearfix b-sizing" v-for="item in selectContentItem">
-                <i class="dlb pa icon-delete p-pointer" @click="deletContent"></i>
+                <i class="dlb pa icon-delete p-pointer" @click="deletContent(item.info.uuid)"></i>
                 <div class="content-show-left fl">
                     <div class="content-show-cover pr">
                         <img :src="item.info.preview" alt="" class="v-center">
@@ -49,9 +49,9 @@
                 </div>
                 <div class="content-show-right fr">
                     <p class="add-title-text-common right-title">标题</p>
-                    <input type="text" maxlength="30" class="b-sizing" v-model="courseTitle" placeholder="请输入标题">
+                    <input type="text" maxlength="30" class="b-sizing" v-model="courseTitleList[item.info.uuid]" placeholder="请输入标题">
                     <p class="add-title-text-common">描述</p>
-                    <textarea  v-model="courseDesc" class="db b-sizing" maxlength="500" placeholder="请输入内容描述" />
+                    <textarea  v-model="courseDescList[item.info.uuid]" class="db b-sizing" maxlength="500" placeholder="请输入内容描述" />
                 </div>
             </div>
             <div class="active-btns select-content-block t-center p-pointer" @click="selectContent">
@@ -96,8 +96,8 @@
                 tipComponent: null,
                 selectContentId: '',
                 selectContentItem: [],
-                courseTitle: '',
-                courseDesc: ''
+                courseTitleList: {},
+                courseDescList:{}
             }
         },
         beforeCreate: function () {
@@ -119,8 +119,8 @@
         },
         methods: {
             changeEditor(msg) {
-                this.descInfoText = msg.text
-                this.descInfoHtml = msg.html
+                this.descInfoText = msg.text;
+                this.descInfoHtml = msg.html;
             },
             globalClick() {
                 this.clickShow = false;
@@ -161,15 +161,34 @@
                     this.errorAlert('请输入课程描述')
                 } else if (this.descInfoText.length > 500) {
                     this.errorAlert('课程描述不能大于500个字符')
-                } else if (this.selectContentId === '') {
+                } else if (JSON.stringify(this.courseTitleList) == "{}") {
                     this.errorAlert('请选择AR内容')
-                } else if (this.courseTitle === '') {
+                } else if (!this.checkoutCourseTitle()) {
                     this.errorAlert('请输入课程内容标题')
-                } else if (this.courseDesc === '') {
+                } else if (!this.checkoutCourseDesc()) {
                     this.errorAlert('请输入课程内容描述')
                 } else {
                     this.uploadCoverToQiNiu();
                 }
+            },
+            checkoutCourseTitle(){
+              let charge = true;
+              for(let name in this.courseTitleList) {
+                  if(this.courseTitleList[name] === '') {
+                      charge = false;
+                  }
+              }
+
+              return charge
+            },
+            checkoutCourseDesc(){
+              let charge = true;
+              for(let desc in this.courseDescList) {
+                    if(this.courseDescList[desc] === '') {
+                        charge = false;
+                    }
+                }
+              return charge
             },
             errorAlert(text){
                 this.alertComponentActive('common-error-alert',text)
@@ -194,10 +213,14 @@
                 this.getContentInsoRequest();
             },
             getContentInsoRequest(){
+                if(this.courseTitleList.hasOwnProperty(this.selectContentId)) {
+                    return
+                }
                 this.$store.dispatch('loading');
                 http.Http.get(config.Config.mypackagesCommon + '/' + this.selectContentId, '', msg => {
                     this.$store.dispatch('removeLoading');
-                    this.selectContentItem = [];
+                    this.courseTitleList[msg.info.uuid] =  msg.info.name;
+                    this.courseDescList[msg.info.uuid] = msg.info.intro;
                     this.courseTitle = msg.info.name;
                     this.courseDesc = msg.info.intro;
                     this.selectContentItem.push(msg);
@@ -206,16 +229,21 @@
                     this.alertComponentActive('common-error-alert', err.responseJSON.message);
                 });
             },
-            deletContent(){
+            deletContent(uuid){
+                this.selectContentId = uuid;
                 this.isTips = true;
                 this.tipComponent = AlertTip;
             },
             confirmDelete(){
                 this.hideTipe();
-                this.selectContentItem = [];
-                this.selectContentId = '';
-                this.courseTitle = '';
-                this.courseDesc = '';
+                delete this.courseDescList[this.selectContentId];
+                delete this.courseTitleList[this.selectContentId];
+                for(let i = 0, j = this.selectContentItem.length; i < j; i++) {
+                    if(this.selectContentItem[i].info.uuid === this.selectContentId) {
+                        this.selectContentItem.splice(i,1);
+                        break;
+                    }
+                }
             },
             //预览图上传到七牛
             uploadCoverToQiNiu(){
@@ -239,18 +267,21 @@
                 });
             },
             createCourseRequest(data){
-                console.log(data);
                 this.$store.dispatch('loading');
                 let params = {
                     name: this.courseName,
                     categoryId: parseInt(this.selectTypeId),
                     coverUuid: data.uuid,
                     intro: this.descInfoHtml,
-                    packages: [{
-                        uuid: this.selectContentId,
-                        name: this.courseTitle,
-                        intro: this.courseDesc
-                    }]
+                    packages: []
+                };
+                for(let i = 0, j = this.selectContentItem.length; i < j; i++) {
+                    params.packages.push({
+                        uuid: this.selectContentItem[i].info.uuid,
+                        name: this.courseTitleList[this.selectContentItem[i].info.uuid],
+                        intro: this.courseDescList[this.selectContentItem[i].info.uuid]
+
+                    })
                 }
                 http.Http.postToBody(config.Config.getClassList, params, msg => {
                     this.$store.dispatch('removeLoading');
