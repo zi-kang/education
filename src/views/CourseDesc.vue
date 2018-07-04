@@ -6,7 +6,7 @@
         <Nav class="pf"></Nav>
         <div class="course-desc-page-top common-page-top b-sizing t-left pf clearfix">
             <router-link to="/course"><i class="dlb vtm icon-back p-pointer add-class-btn"></i></router-link>
-            <span class="dlb vtm" style="margin-left: 10px">课程</span>
+            <span class="dlb vtm" style="margin-left: 10px">课程详情</span>
             <button type="button" class="dlb vtm common-delete-btn-style fr p-pointer" @click="deleteCourse">删除</button>
             <router-link :to="{path: '/course/modify/' + uuid}" class="dlb vtm common-confirm-btn-style t-center fr p-pointer">编辑</router-link>
         </div>

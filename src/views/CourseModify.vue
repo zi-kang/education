@@ -6,7 +6,7 @@
         <Nav></Nav>
         <div class="education-class-page-top common-page-top b-sizing t-left pr">
             <router-link :to="{path: '/course/' + uuid}"><i class="dlb vtm icon-back p-pointer back-to-course"></i></router-link>
-            <span class="dlb vtm class-name">课程详情</span>
+            <span class="dlb vtm class-name">编辑课程</span>
         </div>
         <div class="add-course-main clearfix">
             <div class="add-top-left fl t-left">
